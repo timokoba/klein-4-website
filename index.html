@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Klein 4 | Security from First Principles</title>
+
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syne:wght@600;700;800&display=swap"
+		rel="stylesheet">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+	<!-- Navigation -->
+	<nav class="header">
+		<div class="container nav-container">
+			<a href="#" class="nav-logo">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M2 2L22 22M22 2L2 22" stroke="white" stroke-width="4" />
+					<rect x="8" y="8" width="8" height="8" fill="#E97132" />
+				</svg>
+				Klein 4
+			</a>
+			<div class="nav-links">
+				<a href="#product" class="nav-link">Product</a>
+				<a href="#technology" class="nav-link">Technology</a>
+				<a href="#news" class="nav-link">News</a>
+				<a href="#pilot" class="nav-link">Pilot Series</a>
+			</div>
+			<a href="#contact" class="nav-cta button-primary">Contact</a>
+		</div>
+	</nav>
+
+	<!-- Hero Section -->
+	<header class="hero">
+		<div class="hero-bg"></div>
+		<canvas id="hero-canvas" class="hero-canvas"></canvas>
+
+		<div class="container">
+			<div class="hero-content">
+				<div class="eyebrow" data-reveal>Data Security Re-Engineered</div>
+				<h1 class="h-hero" data-reveal>
+					Security from <br>
+					<span style="color: var(--color-accent);">First Principles</span>
+				</h1>
+				<p class="hero-sub" data-reveal>
+					Klein 4 is redefining data security at the physical layer, protecting the most valuable asset of
+					every SME.
+				</p>
+				<div class="button-group" data-reveal>
+					<a href="#product" class="button-primary">Discover NAS</a>
+					<a href="#pilot" class="button-outline" style="margin-left: 1rem;">Join Pilot</a>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Intro / Philosophy -->
+	<section class="section" id="technology">
+		<div class="container">
+			<div class="intro-text">
+				<div class="eyebrow" style="justify-content: center;">Zeroth Assumption Security</div>
+				<h2 class="intro-stat" data-reveal>
+					<span class="highlight">No virtual isolation.</span><br>
+					<span class="highlight">No software assumptions.</span><br>
+					<span class="highlight" style="color: var(--color-accent);">No undetected compromise.</span>
+				</h2>
+				<p class="p-large" data-reveal>
+					We control information flow at the physical layer. Conventional security isolates logically; Klein 4
+					isolates physically.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Product Showcase -->
+	<section class="section product-section" id="product">
+		<div class="container">
+			<div class="product-grid">
+				<div class="product-content" data-reveal>
+					<div class="eyebrow">The Hardware</div>
+					<h2 class="h-large">Next Generation <br>NAS</h2>
+					<p class="p-large">
+						Our innovative solution to protect your valuable data. Built for the European SME market with
+						uncompromising standards.
+					</p>
+
+					<ul class="feature-list">
+						<li class="feature-item">
+							<div class="feature-icon">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+									<rect x="2" y="2" width="20" height="20" rx="2" />
+								</svg>
+							</div>
+							<div>
+								<h4>Hardware Enforced DLP</h4>
+								<p style="font-size: 0.9rem; color: #888;">Data Loss Prevention enforced by physics, not
+									policies.</p>
+							</div>
+						</li>
+						<li class="feature-item">
+							<div class="feature-icon">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+									<circle cx="12" cy="12" r="10" />
+								</svg>
+							</div>
+							<div>
+								<h4>Automated Cold Backups</h4>
+								<p style="font-size: 0.9rem; color: #888;">Air-gapped backups created automatically
+									without human intervention.</p>
+							</div>
+						</li>
+					</ul>
+
+					<a href="#pilot" class="button-primary">Pre-Order Pilot</a>
+				</div>
+
+				<div class="product-visual" data-reveal>
+					<!-- Simulated Product Image -->
+					<img src="https://placehold.co/800x600/111/444?text=Klein+4+NAS+Device" alt="Klein 4 NAS Device"
+						class="product-img">
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Features Grid (Bento) -->
+	<section class="section">
+		<div class="container">
+			<div class="section-header" style="margin-bottom: 4rem;">
+				<div class="eyebrow">Core Technology</div>
+				<h2 class="h-medium">Uncompromising Security</h2>
+			</div>
+
+			<div class="bento-grid">
+				<!-- Card 1 -->
+				<div class="bento-card" data-reveal>
+					<div class="card-icon">⎋</div>
+					<h3>Offline Disk Controller</h3>
+					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
+						The NAS dynamically manages physical access to storage using multiplexers configured by an
+						auxiliary computer.
+						Security is guaranteed by security domain segmentation and data diodes.
+					</p>
+				</div>
+
+				<!-- Card 2 -->
+				<div class="bento-card" data-reveal>
+					<div class="card-icon">❄️</div>
+					<h3>Guaranteed Continuity</h3>
+					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
+						Offline copies remain secure even if hackers gain root-level access.
+						Transforms cold backup creation from labor-intensive to automatic.
+					</p>
+				</div>
+
+				<!-- Card 3 (Wide) -->
+				<div class="bento-card wide" data-reveal>
+					<div class="card-image">
+						<img src="https://placehold.co/800x300/222/555?text=Tamper+Protection+Mechanisms"
+							alt="Tamper Protection">
+					</div>
+					<h3>Tamper Protection Mechanisms</h3>
+					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
+						Sensors embedded in the casing, audio alarms, and phone notifications on admin access.
+						Physical interference is immediately detectable and leaves verifiable evidence.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Partners / Marquee -->
+	<section class="marquee-wrap">
+		<div class="marquee-content">
+			<span class="partner-logo">CISPA Helmholtz Center</span>
+			<span class="partner-logo">UNTERNEHMER TUM</span>
+			<span class="partner-logo">PALLADION Defence Accelerator</span>
+			<span class="partner-logo">CISPA Helmholtz Center</span>
+			<span class="partner-logo">UNTERNEHMER TUM</span>
+			<span class="partner-logo">PALLADION Defence Accelerator</span>
+		</div>
+	</section>
+
+	<!-- News & Pilot Application -->
+	<section class="section" id="news" style="padding-bottom: 0;">
+		<div class="container">
+			<div class="news-block" data-reveal>
+				<div class="news-date">17.02.2026</div>
+				<h3 class="h-medium">Pilot Series Now Open</h3>
+				<p class="p-large">
+					Applications are currently being accepted for the initial deployment phase.
+					Be among the first to secure your infrastructure with physical-layer guarantees.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="pilot"
+		style="background: linear-gradient(180deg, var(--color-bg-dark) 0%, #111 100%);">
+		<div class="container">
+			<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 4rem;">
+				<div data-reveal>
+					<div class="eyebrow">Join the Pilot</div>
+					<h2 class="h-medium">Apply for<br>Pilot Series Beta</h2>
+					<p class="p-large" style="margin-bottom: 2rem;">
+						We are selecting a limited number of partners for our pilot series.
+						Tell us about your infrastructure needs.
+					</p>
+
+					<ul class="feature-list" style="border: none;">
+						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
+							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
+							Early access to hardware
+						</li>
+						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
+							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
+							Direct engineering support
+						</li>
+						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
+							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
+							Preferential pricing
+						</li>
+					</ul>
+				</div>
+
+				<div class="form-container" data-reveal>
+					<form action="#" method="POST">
+						<div class="form-group">
+							<label class="form-label">Full Name</label>
+							<input type="text" class="form-input" placeholder="e.g. Jane Doe">
+						</div>
+						<div class="form-group">
+							<label class="form-label">Company Email</label>
+							<input type="email" class="form-input" placeholder="name@company.com">
+						</div>
+						<div class="form-group">
+							<label class="form-label">Infrastructure Scale</label>
+							<select class="form-input">
+								<option>Select size...</option>
+								<option>Small (< 10TB)</option>
+								<option>Medium (10TB - 100TB)</option>
+								<option>Large (> 100TB)</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="form-label">Message</label>
+							<textarea class="form-textarea" rows="4"
+								placeholder="Tell us about your security needs..."></textarea>
+						</div>
+						<button type="submit" class="button-primary" style="width: 100%;">Submit Application</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Q&A Section -->
+	<section class="section">
+		<div class="container" style="max-width: 800px;">
+			<div class="section-header" style="text-align: center; margin-bottom: 4rem;">
+				<div class="eyebrow" style="justify-content: center;">FAQ</div>
+				<h2 class="h-medium">Common Questions</h2>
+			</div>
+
+			<div class="feature-item" style="display: block;">
+				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">How does the Offline Disk Controller
+					work?</h4>
+				<p style="color: var(--color-text-muted);">It physically severs the connection to backup disks using
+					hardware multiplexers, ensuring no software vulnerability can bridge the gap.</p>
+			</div>
+			<div class="feature-item" style="display: block;">
+				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">Is it compatible with existing
+					infrastructure?</h4>
+				<p style="color: var(--color-text-muted);">Yes, Klein 4 NAS is designed to integrate as a standard
+					network appliance while providing superior physical security.</p>
+			</div>
+			<div class="feature-item" style="display: block; border: none;">
+				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">Where is the data stored?</h4>
+				<p style="color: var(--color-text-muted);">Data is stored locally on high-performance drives within the
+					tamper-proof chassis. No cloud dependencies.</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Contact & Footer -->
+	<footer class="footer" id="contact">
+		<div class="container">
+			<div class="footer-grid">
+				<div class="footer-col">
+					<a href="#" class="nav-logo" style="margin-bottom: 1rem; display: inline-block;">
+						Klein 4
+					</a>
+					<p style="color: var(--color-text-muted); font-size: 0.9rem; max-width: 300px;">
+						Redefining data security at the physical layer.
+						Protecting the most valuable asset of every SME.
+					</p>
+				</div>
+
+				<div class="footer-col">
+					<h4>Product</h4>
+					<ul class="footer-links">
+						<li><a href="#">Overview</a></li>
+						<li><a href="#">Technology</a></li>
+						<li><a href="#">Pilot Series</a></li>
+					</ul>
+				</div>
+
+				<div class="footer-col">
+					<h4>Company</h4>
+					<ul class="footer-links">
+						<li><a href="#">About</a></li>
+						<li><a href="#">Jobs</a></li>
+						<li><a href="#">Press</a></li>
+						<li><a href="#">Contact</a></li>
+					</ul>
+				</div>
+
+				<div class="footer-col">
+					<h4>Legal</h4>
+					<ul class="footer-links">
+						<li><a href="#">Imprint</a></li>
+						<li><a href="#">Privacy</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="footer-bottom">
+				<div>© 2026 Klein 4. All rights reserved.</div>
+				<div>Designed in Europe.</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- Scripts -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+	<script src="js/main.js"></script>
+</body>
+
+</html>
