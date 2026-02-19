@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAnimations();
     initHeroAnimation();
     initNavScroll();
+    initProduct3D();
 });
 
 function initScrollAnimations() {
@@ -197,4 +198,57 @@ function initHeroAnimation() {
 
     // Re-init on resize to maintain density
     window.addEventListener('resize', init);
+}
+
+function initProduct3D() {
+    const container = document.querySelector('.product-visual');
+    const image = document.querySelector('.product-img');
+
+    if (!container || !image) return;
+
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        // Calculate mouse position relative to center of element
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+
+        // Calculate tilt angles
+        // Max tilt is 10 degrees.
+        // If mouse is at left edge (x = -width/2), we want to rotate Y axis negatively (tilt left side down/back? No, tilt left side towards user usually means positive rotation? Wait.)
+        // Standard CSS rotateY: positive is right side coming towards viewer (or left side going back).
+        // Let's stick to "follow the mouse" logic often used in cards.
+        // Mouse Left -> Card tilts such that left side goes DOWN into screen? Or UP towards user?
+        // User requested: "dass sich das gesamte rechteck mit bild in die ecke kippt wo man quasi die maus hat".
+        // This implies if I hover top-left, the top-left corner should dip down (away) or come up (towards)?
+        // Usually "tilting towards the mouse" means the point under the mouse becomes the "low point" (dipping away) 
+        // OR the "high point" (coming closer).
+        // Let's assume "dipping away" like pressing a button is more tactile.
+
+        // Let's try: Mouse Top Left -> Rotate X positive (top goes back), Rotate Y negative (left goes back).
+
+        const rotateMax = 10;
+        const rotateX = -(y / (rect.height / 2)) * rotateMax; // y negative (top) -> rotateX positive
+        const rotateY = (x / (rect.width / 2)) * rotateMax;  // x negative (left) -> rotateY negative
+
+        gsap.to(container, {
+            rotationX: rotateX,
+            rotationY: rotateY,
+            transformPerspective: 1000,
+            ease: "power1.out",
+            duration: 0.5
+        });
+
+        // Image fixed (no independent movement)
+    });
+
+    container.addEventListener('mouseleave', () => {
+        gsap.to(container, {
+            rotationX: 0,
+            rotationY: 0,
+            ease: "elastic.out(1, 0.5)",
+            duration: 1
+        });
+
+        // Image reset not needed as it doesn't move
+    });
 }
