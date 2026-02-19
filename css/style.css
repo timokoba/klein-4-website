@@ -329,12 +329,15 @@ h6 {
     border-radius: 12px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
     overflow: hidden;
 }
 
 .product-img {
-    max-width: 80%;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    object-fit: contain;
     filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
     transition: transform 0.5s ease;
 }
