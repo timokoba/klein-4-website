@@ -263,7 +263,10 @@ h6 {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #080808 70%);
+    background:
+        radial-gradient(ellipse at 30% 40%, rgba(25, 25, 30, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(20, 20, 25, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, #0c0c0e 0%, #060608 70%);
 }
 
 .hero-canvas {
@@ -272,7 +275,7 @@ h6 {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.4;
+    opacity: 0.65;
 }
 
 .hero-content {
