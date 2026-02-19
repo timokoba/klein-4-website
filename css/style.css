@@ -291,16 +291,137 @@ h6 {
 
 /* ------------------------- Intro Section ------------------------- */
 .intro-text {
+    /* Increased height for pin effect to feel spacious */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    max-width: 900px;
-    margin: 0 auto;
+
+    /* Break out of container to Full Viewport Width */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+
+    position: relative;
+    overflow: hidden;
+}
+
+.intro-bg {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    z-index: -1;
+    background-color: #020202;
+
+    /* Slightly more visible Monochrome PCB Pattern */
+    background-image:
+        /* 1. Faint ambient glow */
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
+
+        /* 2. Grid Lines */
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+
+        /* 3. Circuit Traces (Detail) */
+        repeating-linear-gradient(45deg, transparent, transparent 19px, rgba(255, 255, 255, 0.04) 19px, rgba(255, 255, 255, 0.04) 20px),
+
+        /* 4. Connection Points */
+        radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.5px);
+
+    background-size:
+        100% 100%,
+        /* Glow */
+        60px 60px, 60px 60px,
+        /* Grid */
+        60px 60px,
+        /* Diagonals */
+        60px 60px;
+    /* Dots */
+
+    background-position:
+        center center,
+        0 0, 0 0,
+        0 0,
+        30px 30px;
+    /* Dots offset */
+
+    transform: rotate(15deg) scale(1.2);
+    transform-origin: center center;
+    opacity: 1;
+
+    /* Soft fade at top/bottom edges */
+    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+}
+
+.intro-stat-container {
+    height: 120px;
+    /* Placeholder space for one line of text */
+    position: relative;
+    width: 100%;
+    margin-bottom: 2rem;
 }
 
 .intro-stat {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.anim-text {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) translateY(20px);
+    opacity: 0;
     font-size: clamp(2rem, 5vw, 4rem);
-    color: var(--color-text-muted);
     line-height: 1.2;
-    margin: 2rem 0;
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+
+.anim-text-final {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.intro-epic-light {
+    position: absolute;
+    top: 55%;
+    /* Match image center */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    /* Large burst area */
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+    opacity: 0;
+    z-index: 1;
+    /* Below image (z-index 2) */
+    pointer-events: none;
+    mix-blend-mode: screen;
+    /* Additive lighting */
+}
+
+.anim-image-final {
+    position: absolute;
+    top: 55%;
+    /* Slightly lower to clear any lingering text if any */
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 100%;
+    max-width: 600px;
+    opacity: 0;
+    z-index: 2;
+}
+
+.anim-image-final img {
+    width: 100%;
+    height: auto;
 }
 
 .highlight {
@@ -344,6 +465,40 @@ h6 {
     transform-style: preserve-3d;
     transition: border-color 0.5s ease, box-shadow 0.5s ease;
     /* Removed transform transition for JS control */
+}
+
+.product-visual::before {
+    /* Default center if no mouse interaction yet */
+    left: var(--mouse-x, 50%);
+    top: var(--mouse-y, 60%);
+    transform: translate(-50%, -50%) scale(0.8);
+    background: radial-gradient(circle, rgba(233, 113, 50, 0.7) 0%, rgba(233, 113, 50, 0) 70%);
+    filter: blur(60px);
+    opacity: 0;
+    z-index: 1;
+    /* Below product-img (z-index 2) */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Removed left/top transition for instant follow */
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.product-visual:hover::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+}
+
+
+
+/* Force reset on scroll away */
+.product-visual.force-inactive {
+    border-color: var(--color-border) !important;
+    box-shadow: none !important;
+}
+
+.product-visual.force-inactive::before {
+    opacity: 0 !important;
+    transform: translate(-50%, -50%) scale(0.8) !important;
 }
 
 .product-visual::after {

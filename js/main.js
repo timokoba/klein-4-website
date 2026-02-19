@@ -5,7 +5,120 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroAnimation();
     initNavScroll();
     initProduct3D();
+    initIntroTextScroll();
 });
+
+function initIntroTextScroll() {
+    const section = document.querySelector('.intro-text');
+    const bg = document.querySelector('.intro-bg');
+    const texts = document.querySelectorAll('.anim-text');
+    const final = document.querySelector('.anim-text-final');
+    const finalImage = document.querySelector('.anim-image-final');
+    const light = document.querySelector('.intro-epic-light');
+
+    if (!section || texts.length === 0) return;
+
+    // Create a timeline that pins the section
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "+=3500", // Increased scroll distance
+            pin: true,
+            scrub: 1,
+        }
+    });
+
+    // Background Animation (Drift over entire sequence)
+    if (bg) {
+        tl.to(bg, {
+            scale: 1.3,
+            rotation: 25,
+            ease: "none",
+            duration: texts.length * 2 + 7 // Duration covers text + final paragraph + image
+        }, 0);
+    }
+
+    // Animate texts sequentially
+    texts.forEach((text, index) => {
+        // Fade In
+        tl.to(text, {
+            opacity: 1,
+            y: "-50%",
+            duration: 0.8,
+            ease: "power2.out"
+        });
+
+        // Hold
+        tl.to({}, { duration: 0.8 });
+
+        // Fade Out
+        tl.to(text, {
+            opacity: 0,
+            y: "-80%",
+            duration: 0.8,
+            ease: "power2.in"
+        });
+    });
+
+    // Reveal final P tag
+    tl.to(final, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power2.out"
+    });
+
+    // Hold P tag
+    tl.to({}, { duration: 1.5 });
+
+    // Fade Out P tag
+    tl.to(final, {
+        opacity: 0,
+        y: "-20px",
+        duration: 1,
+        ease: "power2.in"
+    });
+
+    // Reveal Final Image with Deep Tech Scan Effect & Epic Light
+    if (finalImage) {
+        // Use fromTo for precise control of the 'tech reveal'
+        tl.fromTo(finalImage,
+            {
+                opacity: 1,
+                top: "50%",
+                scale: 1.1,
+                clipPath: "inset(45% 0 45% 0)", // Start as thin line
+                filter: "brightness(2) blur(10px)" // Bright and blurry (Screenshot 1)
+            },
+            {
+                clipPath: "inset(0% 0 0% 0)", // Open up cleanly
+                filter: "brightness(1) blur(0px)", // Focus (Screenshot 2)
+                scale: 1,
+                duration: 2.5,
+                ease: "power3.inOut"
+            }
+        );
+
+        // Animate Light Burst in sync
+        if (light) {
+            // Start centered and small
+            tl.fromTo(light,
+                { scale: 0, opacity: 0 },
+                { scale: 1.5, opacity: 0.6, duration: 1.5, ease: "power2.out" },
+                "<" // Start at same time as image reveal
+            );
+            // Fade out light as image settles
+            tl.to(light,
+                { opacity: 0, scale: 2, duration: 1, ease: "power2.in" },
+                "-=1" // Overlap end of reveal
+            );
+        }
+
+        // Hold Image
+        tl.to({}, { duration: 2 });
+    }
+}
 
 function initScrollAnimations() {
     // Reveal elements on scroll
@@ -206,29 +319,41 @@ function initProduct3D() {
 
     if (!container || !image) return;
 
-    container.addEventListener('mousemove', (e) => {
+    // Track global mouse position for scroll checking
+    let mouseX = null;
+    let mouseY = null;
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    const resetTilt = () => {
+        gsap.to(container, {
+            rotationX: 0,
+            rotationY: 0,
+            ease: "elastic.out(1, 0.5)",
+            duration: 1
+        });
+    };
+
+    const updateTilt = (x, y) => {
+        container.classList.remove('force-inactive');
+
         const rect = container.getBoundingClientRect();
-        // Calculate mouse position relative to center of element
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
+        const xRel = x - rect.left - rect.width / 2;
+        const yRel = y - rect.top - rect.height / 2;
 
-        // Calculate tilt angles
-        // Max tilt is 10 degrees.
-        // If mouse is at left edge (x = -width/2), we want to rotate Y axis negatively (tilt left side down/back? No, tilt left side towards user usually means positive rotation? Wait.)
-        // Standard CSS rotateY: positive is right side coming towards viewer (or left side going back).
-        // Let's stick to "follow the mouse" logic often used in cards.
-        // Mouse Left -> Card tilts such that left side goes DOWN into screen? Or UP towards user?
-        // User requested: "dass sich das gesamte rechteck mit bild in die ecke kippt wo man quasi die maus hat".
-        // This implies if I hover top-left, the top-left corner should dip down (away) or come up (towards)?
-        // Usually "tilting towards the mouse" means the point under the mouse becomes the "low point" (dipping away) 
-        // OR the "high point" (coming closer).
-        // Let's assume "dipping away" like pressing a button is more tactile.
+        // Update CSS variables for Glow Position
+        // Percentages relative to the container for CSS left/top
+        const xPct = ((x - rect.left) / rect.width) * 100;
+        const yPct = ((y - rect.top) / rect.height) * 100;
 
-        // Let's try: Mouse Top Left -> Rotate X positive (top goes back), Rotate Y negative (left goes back).
+        container.style.setProperty('--mouse-x', `${xPct}%`);
+        container.style.setProperty('--mouse-y', `${yPct}%`);
 
         const rotateMax = 10;
-        const rotateX = -(y / (rect.height / 2)) * rotateMax; // y negative (top) -> rotateX positive
-        const rotateY = (x / (rect.width / 2)) * rotateMax;  // x negative (left) -> rotateY negative
+        const rotateX = -(yRel / (rect.height / 2)) * rotateMax;
+        const rotateY = (xRel / (rect.width / 2)) * rotateMax;
 
         gsap.to(container, {
             rotationX: rotateX,
@@ -237,18 +362,42 @@ function initProduct3D() {
             ease: "power1.out",
             duration: 0.5
         });
+    };
 
-        // Image fixed (no independent movement)
+    container.addEventListener('mousemove', (e) => {
+        updateTilt(e.clientX, e.clientY);
     });
 
-    container.addEventListener('mouseleave', () => {
-        gsap.to(container, {
-            rotationX: 0,
-            rotationY: 0,
-            ease: "elastic.out(1, 0.5)",
-            duration: 1
-        });
+    // Ensure we trigger active state when scrolling onto the element (browser fires mouseenter)
+    container.addEventListener('mouseenter', (e) => {
+        // Update global trackers in case they were null
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        updateTilt(e.clientX, e.clientY);
+    });
 
-        // Image reset not needed as it doesn't move
+    container.addEventListener('mouseleave', resetTilt);
+
+    // Check on scroll if mouse is still over the element
+    window.addEventListener('scroll', () => {
+        if (mouseX === null || mouseY === null) return;
+
+        const rect = container.getBoundingClientRect();
+        // Check if mouse is within bounds
+        const isOver = (
+            mouseX >= rect.left &&
+            mouseX <= rect.right &&
+            mouseY >= rect.top &&
+            mouseY <= rect.bottom
+        );
+
+        if (!isOver) {
+            resetTilt();
+            container.classList.add('force-inactive');
+        } else {
+            // Optional: Update tilt as the element moves under the static mouse
+            container.classList.remove('force-inactive');
+            updateTilt(mouseX, mouseY);
+        }
     });
 }
