@@ -9,8 +9,7 @@
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link
-		href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syne:wght@600;700;800&display=swap"
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
 		rel="stylesheet">
 
 	<!-- CSS -->
@@ -18,6 +17,14 @@
 </head>
 
 <body>
+
+	<!-- Intro Animation Overlay -->
+	<div class="intro-overlay" id="intro-overlay"
+		style="position:fixed;inset:0;background:#fff;z-index:9999;display:flex;justify-content:center;align-items:center;">
+		<div class="intro-logo-container">
+			<img src="images/Final Logo full black fb.png" alt="Klein 4 Logo" class="intro-logo" id="intro-logo">
+		</div>
+	</div>
 
 	<!-- Navigation -->
 	<nav class="header">
@@ -31,7 +38,7 @@
 				<a href="#news" class="nav-link">News</a>
 				<a href="#pilot" class="nav-link">Pilot Series</a>
 			</div>
-			<a href="#contact" class="nav-cta button-primary">Contact</a>
+			<a href="#contact" class="nav-cta button-outline">Contact</a>
 		</div>
 	</nav>
 
@@ -42,11 +49,13 @@
 
 		<div class="container">
 			<div class="hero-content">
-				<div class="eyebrow" data-reveal>Data Security Re-Engineered</div>
-				<h1 class="h-hero" data-reveal>
-					Security from <br>
-					<span style="color: var(--color-accent);">First Principles</span>
-				</h1>
+				<div class="hero-title-group" data-reveal>
+					<div class="hero-accent-line"></div>
+					<h1 class="h-hero">
+						<span class="h-hero-top">Security from</span>
+						<span class="h-hero-accent">First Principles</span>
+					</h1>
+				</div>
 				<p class="hero-sub" data-reveal>
 					Klein 4 is redefining data security at the physical layer, protecting the most valuable asset of
 					every SME.
@@ -60,25 +69,18 @@
 	</header>
 
 	<!-- Intro / Philosophy -->
-	<section class="section" id="technology">
+	<section class="section" id="technology" style="padding: 0; margin-top: -1px;">
 		<div class="container">
 			<div class="intro-text">
 				<div class="intro-bg"></div>
 				<!-- Removed Eyebrow -->
 				<div class="intro-stat-container">
 					<h2 class="intro-stat">
-						<span class="anim-text">No virtual isolation.</span>
-						<span class="anim-text">No software assumptions.</span>
-						<span class="anim-text" style="color: var(--color-accent);">No undetected compromise.</span>
+						<span class="anim-text">We deliver security beyond the limits of software.</span>
+						<span class="anim-text">Leveraging miniaturized physical-layer security.</span>
+						<span class="anim-text" style="color: var(--color-accent);">To guarantee out-of-the-box business
+							continuity.</span>
 					</h2>
-				</div>
-				<p class="p-large anim-text-final">
-					We control information flow at the physical layer. Conventional security isolates logically; Klein 4
-					isolates physically.
-				</p>
-				<div class="intro-epic-light"></div>
-				<div class="anim-image-final">
-					<img src="images/Data_diode_render.PNG" alt="Data Diode Technology">
 				</div>
 			</div>
 		</div>

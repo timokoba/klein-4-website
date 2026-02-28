@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="c"></canvas>
+    <script>
+        const img = new Image();
+        img.src = 'images/Data_diode_structure.png';
+        img.onload = () => {
+            const c = document.getElementById('c');
+            c.width = img.width; c.height = img.height;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            ctx.font = '24px Arial';
+            ctx.lineWidth = 2;
+            ctx.fillStyle = 'red';
+            ctx.strokeStyle = 'red';
+
+            for (let i = 0; i <= 20; i++) {
+                let x = (img.width / 20) * i;
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, img.height); ctx.stroke();
+                if (i % 2 === 0) ctx.fillText(i * 5, x + 5, 25);
+            }
+            for (let i = 0; i <= 20; i++) {
+                let y = (img.height / 20) * i;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(img.width, y); ctx.stroke();
+                if (i % 2 === 0) ctx.fillText(i * 5, 5, y + 25);
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -11,10 +11,10 @@
     /* Tech Blue/Cyan */
     --color-border: #333333;
 
-    --font-heading: 'Syne', sans-serif;
-    /* Dramatic Heading Font */
-    --font-body: 'Inter', sans-serif;
-    /* Clean Body Font */
+    --font-heading: 'Montserrat', sans-serif;
+    /* Clean Deep Tech Font */
+    --font-body: 'Montserrat', sans-serif;
+    /* Clean Deep Tech Font */
 
     --cubic-default: cubic-bezier(0.625, 0.05, 0, 1);
     --duration-default: 0.6s;
@@ -42,6 +42,11 @@ body {
     font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+}
+
+body.no-scroll {
+    overflow: hidden !important;
+    height: 100vh;
 }
 
 a {
@@ -75,10 +80,49 @@ h6 {
     letter-spacing: -0.02em;
 }
 
+.hero-title-group {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.hero-accent-line {
+    position: absolute;
+    left: 0;
+    top: 0.25em;
+    width: 3px;
+    height: calc(100% - 0.5em);
+    background: linear-gradient(180deg, var(--color-accent), rgba(233, 113, 50, 0.15));
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(233, 113, 50, 0.3);
+}
+
 .h-hero {
-    font-size: clamp(3rem, 8vw, 7rem);
+    font-size: clamp(3rem, 5.5vw, 5.5rem);
+    font-weight: 700;
+    font-family: var(--font-body);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.h-hero-top {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    font-size: 0.55em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 1rem;
+    margin-bottom: 0.1em;
+}
+
+.h-hero-accent {
+    color: #fff;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 30%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .h-large {
@@ -154,11 +198,10 @@ h6 {
     border-radius: 2px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s var(--cubic-default);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .button-primary:hover {
-    transform: translateY(-2px);
     background-color: var(--color-accent);
     color: var(--color-text-main);
 }
@@ -243,8 +286,6 @@ h6 {
 .nav-cta {
     font-size: 0.85rem;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-text-muted);
-    border-radius: 4px;
 }
 
 /* ------------------------- Hero Section ------------------------- */
@@ -263,10 +304,7 @@ h6 {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background:
-        radial-gradient(ellipse at 30% 40%, rgba(25, 25, 30, 0.5) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 60%, rgba(20, 20, 25, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, #0c0c0e 0%, #060608 70%);
+    background: transparent;
 }
 
 .hero-canvas {
@@ -301,6 +339,7 @@ h6 {
     justify-content: center;
     align-items: center;
     text-align: center;
+    background: #000000;
 
     /* Break out of container to Full Viewport Width */
     width: 100vw;
@@ -317,42 +356,8 @@ h6 {
     width: 200%;
     height: 200%;
     z-index: -1;
-    background-color: #020202;
+    background-color: #000000;
 
-    /* Slightly more visible Monochrome PCB Pattern */
-    background-image:
-        /* 1. Faint ambient glow */
-        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
-
-        /* 2. Grid Lines */
-        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-
-        /* 3. Circuit Traces (Detail) */
-        repeating-linear-gradient(45deg, transparent, transparent 19px, rgba(255, 255, 255, 0.04) 19px, rgba(255, 255, 255, 0.04) 20px),
-
-        /* 4. Connection Points */
-        radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1.5px);
-
-    background-size:
-        100% 100%,
-        /* Glow */
-        60px 60px, 60px 60px,
-        /* Grid */
-        60px 60px,
-        /* Diagonals */
-        60px 60px;
-    /* Dots */
-
-    background-position:
-        center center,
-        0 0, 0 0,
-        0 0,
-        30px 30px;
-    /* Dots offset */
-
-    transform: rotate(15deg) scale(1.2);
-    transform-origin: center center;
     opacity: 1;
 
     /* Soft fade at top/bottom edges */
@@ -361,8 +366,8 @@ h6 {
 }
 
 .intro-stat-container {
-    height: 120px;
-    /* Placeholder space for one line of text */
+    height: 160px;
+    /* Expanded space for multiline deep tech text */
     position: relative;
     width: 100%;
     margin-bottom: 2rem;
@@ -381,10 +386,12 @@ h6 {
     top: 50%;
     transform: translateY(-50%) translateY(20px);
     opacity: 0;
-    font-size: clamp(2rem, 5vw, 4rem);
-    line-height: 1.2;
-    color: var(--color-text-main);
-    font-weight: 600;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    /* Lighter weight for cleaner tech look */
+    letter-spacing: -0.01em;
 }
 
 .anim-text-final {
@@ -785,4 +792,35 @@ h6 {
 [data-reveal] {
     opacity: 0;
     transform: translateY(30px);
+}
+
+/* ------------------------- Intro Overlay ------------------------- */
+.intro-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* initial state */
+}
+
+.intro-logo-container {
+    position: relative;
+    width: 280px;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.intro-logo {
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    clip-path: inset(0% 100% 0% 0%);
 }
