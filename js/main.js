@@ -21,8 +21,9 @@ function initAll() {
     initScrollAnimations();
     initHeroAnimation();
     initNavScroll();
-    initProduct3D();
     initIntroTextScroll();
+    initProductAnimation();
+    initCardSwap();
 }
 
 function initUniverseStars() {
@@ -207,6 +208,30 @@ function initIntroTextScroll() {
             duration: tl.duration()
         }, 0);
     }
+}
+
+function initProductAnimation() {
+    const productSection = document.querySelector('#product');
+    if (!productSection) return;
+
+    const contentElems = productSection.querySelectorAll('.product-content > *, .product-image-container');
+
+    // We use gsap.fromTo with ScrollTrigger to animate elements staggered as soon as they come into view
+    gsap.fromTo(contentElems,
+        { opacity: 0, y: 30 },
+        {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: productSection,
+                start: 'top 75%',
+                toggleActions: 'play none none reverse'
+            }
+        }
+    );
 }
 
 function initScrollAnimations() {
@@ -395,21 +420,12 @@ function initHeroAnimation() {
 
         ctx.save();
 
-        // --- NEW: Epic Ambient Underglow ---
-        ctx.beginPath();
-        const underGlow = ctx.createRadialGradient(lensX, lensY, currentRadius * 0.5, lensX, lensY, currentRadius * 1.8);
-        underGlow.addColorStop(0, `rgba(233, 113, 50, ${0.15 * lensAlpha})`);
-        underGlow.addColorStop(1, 'rgba(233, 113, 50, 0)');
-        ctx.fillStyle = underGlow;
-        ctx.arc(lensX, lensY, currentRadius * 1.8, 0, Math.PI * 2);
-        ctx.fill();
-
         // 1. Create Clipping Mask for the Lens
         ctx.beginPath();
         ctx.arc(lensX, lensY, currentRadius, 0, Math.PI * 2);
         ctx.clip();
 
-        // 2. Clear background inside lens to ensure no ghosting if we use different alpha
+        // 2. Clear background inside lens to ensure no ghosting
         ctx.clearRect(lensX - currentRadius, lensY - currentRadius, currentRadius * 2, currentRadius * 2);
 
         // 3. Draw the zoomed image inside the lens
@@ -419,91 +435,77 @@ function initHeroAnimation() {
         ctx.scale(zoom, zoom);
         ctx.translate(-lensX, -lensY);
 
-        // Filter for the zoomed area: make it crisper, slightly brighter, and higher opacity
+        // Filter for the zoomed area: crisp, slightly brighter
         ctx.globalAlpha = 0.9 * lensAlpha;
-        ctx.filter = 'invert(1) hue-rotate(180deg) brightness(1.6) contrast(1.8)'; // Increased brightness
+        ctx.filter = 'invert(1) hue-rotate(180deg) brightness(1.5) contrast(1.7)';
         ctx.drawImage(pcbImage, imgX, imgY, imgW, imgH);
         ctx.restore();
 
-        // --- NEW: Inner Lens Edge Glow (Glass / Optical Effect) ---
-        ctx.save();
-        ctx.translate(lensX, lensY);
-        const innerGlow = ctx.createRadialGradient(0, 0, currentRadius * 0.6, 0, 0, currentRadius);
-        innerGlow.addColorStop(0, 'rgba(233, 113, 50, 0)');
-        innerGlow.addColorStop(0.8, 'rgba(233, 113, 50, 0.05)');
-        innerGlow.addColorStop(1, 'rgba(233, 113, 50, 0.45)');
-        ctx.fillStyle = innerGlow;
-        ctx.beginPath();
-        ctx.arc(0, 0, currentRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // 4. Tech Overlay within the lens (Scanlines / Grid)
-        ctx.globalAlpha = 0.15 * lensAlpha;
-        ctx.fillStyle = ACCENT;
-        // Animated panning scanlines for a dynamic scanning feel
-        const scanOffset = (time * 0.02) % 4;
+        // 4. Subtle, precise scanlines
+        ctx.globalAlpha = 0.06 * lensAlpha;
+        ctx.fillStyle = '#ffffff';
+        const scanOffset = (time * 0.03) % 4;
         for (let i = 0; i < currentRadius * 2; i += 4) {
-            ctx.fillRect(lensX - currentRadius, lensY - currentRadius + i + scanOffset, currentRadius * 2, 1);
+            ctx.fillRect(lensX - currentRadius, lensY - currentRadius + i + scanOffset, currentRadius * 2, 0.5);
         }
 
         ctx.restore(); // remove clip
 
-        // 5. Draw Lens Border/Tech UI
+        // 5. Draw Lens Border/Tech UI (Minimalistic & Professional)
         ctx.save();
         ctx.globalAlpha = lensAlpha;
         ctx.translate(lensX, lensY);
 
-        // Epic soft glow behind border
-        ctx.shadowColor = ACCENT;
-        ctx.shadowBlur = 30; // Increased for a brilliant aura
+        // Tight, precise white glow
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 6;
 
-        // Main Ring
+        // Main Ring - thinner, sharper white
         ctx.beginPath();
         ctx.arc(0, 0, currentRadius, 0, Math.PI * 2);
-        ctx.lineWidth = 2.5;
-        ctx.strokeStyle = `rgba(233, 113, 50, 0.9)`;
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.95)`;
         ctx.stroke();
 
         ctx.shadowBlur = 0;
 
-        // --- NEW: Secondary optical focus ring ---
+        // Secondary optical focus ring - very slight gap, thin
         ctx.beginPath();
-        ctx.arc(0, 0, currentRadius + 2, 0, Math.PI * 2);
+        ctx.arc(0, 0, currentRadius + 4, 0, Math.PI * 2);
         ctx.lineWidth = 0.5;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.25)`;
         ctx.stroke();
 
-        // Inner dashed ring
+        // Inner dashed ring - precision ticks
         ctx.beginPath();
-        ctx.arc(0, 0, Math.max(0, currentRadius - 8), 0, Math.PI * 2);
+        ctx.arc(0, 0, Math.max(0, currentRadius - 5), 0, Math.PI * 2);
         ctx.lineWidth = 1;
-        ctx.setLineDash([4, 12]);
-        ctx.strokeStyle = `rgba(233, 113, 50, 0.4)`;
+        ctx.setLineDash([2, 10]);
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Outer tech segments
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = ACCENT;
-        const segmentCount = 4;
-        const segmentLength = Math.PI / 8;
-        const offsetRotation = time * 0.0005; // slowly rotate the outer ring
+        // Outer tech segments - reduced size, slower rotation, white accent
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.6)`;
+        const segmentCount = 3;
+        const segmentLength = Math.PI / 10;
+        const offsetRotation = time * 0.0003;
 
         for (let i = 0; i < segmentCount; i++) {
             const angle = offsetRotation + (i * Math.PI * 2) / segmentCount;
             ctx.beginPath();
-            ctx.arc(0, 0, currentRadius + 6, angle, angle + segmentLength);
+            ctx.arc(0, 0, currentRadius + 10, angle, angle + segmentLength);
             ctx.stroke();
         }
 
-        // Crosshairs
-        const chLength = 15;
-        const chOffset = Math.max(10, currentRadius * 0.2); // clear center
+        // Crosshairs - clean, minimal
+        const chLength = 6;
+        const chOffset = Math.max(8, currentRadius * 0.2); // clear center
         ctx.lineWidth = 1;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.6)`;
 
-        // Center cross
+        // Top, Bottom, Left, Right cross lines
         ctx.beginPath();
         ctx.moveTo(0, -chOffset - chLength);
         ctx.lineTo(0, -chOffset);
@@ -515,10 +517,16 @@ function initHeroAnimation() {
         ctx.lineTo(chOffset + chLength, 0);
         ctx.stroke();
 
-        // Optional center coordinate text for deep tech feel
-        ctx.font = '10px monospace';
-        ctx.fillStyle = `rgba(233, 113, 50, 0.8)`;
-        ctx.fillText(`X:${Math.round(lensX)} Y:${Math.round(lensY)}`, chOffset + 10, 4);
+        // Exact center pin hole dot
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, 0.9)`;
+        ctx.fill();
+
+        // Coordinate text - tiny precise mono font
+        ctx.font = '9px monospace';
+        ctx.fillStyle = `rgba(255, 255, 255, 0.4)`;
+        ctx.fillText(`${Math.round(lensX)}:${Math.round(lensY)}`, chOffset + 4, 3);
 
         ctx.restore();
     }
@@ -535,91 +543,151 @@ function initHeroAnimation() {
     requestAnimationFrame(animate);
 }
 
-function initProduct3D() {
-    const container = document.querySelector('.product-visual');
-    const image = document.querySelector('.product-img');
 
-    if (!container || !image) return;
+function initCardSwap() {
+    try {
+        const container = document.querySelector('.card-swap-container');
+        if (!container) return;
 
-    // Track global mouse position for scroll checking
-    let mouseX = null;
-    let mouseY = null;
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
+        const cards = Array.from(container.querySelectorAll('.card'));
+        if (cards.length === 0) return;
 
-    const resetTilt = () => {
-        gsap.to(container, {
-            rotationX: 0,
-            rotationY: 0,
-            ease: "elastic.out(1, 0.5)",
-            duration: 1
+        const cardDistance = 60;
+        const verticalDistance = 70;
+        const skewAmount = 6;
+        const delay = 5000;
+
+        // Elastic easing configuration from React component
+        const config = {
+            ease: 'elastic.out(0.6,0.9)',
+            durDrop: 2,
+            durMove: 2,
+            durReturn: 2,
+            promoteOverlap: 0.9,
+            returnDelay: 0.05
+        };
+
+        const makeSlot = (i, distX, distY, total) => ({
+            x: i * distX,
+            y: -i * distY,
+            z: -i * distX * 1.5,
+            zIndex: total - i
         });
-    };
 
-    const updateTilt = (x, y) => {
-        container.classList.remove('force-inactive');
+        const placeNow = (el, slot, skew) => {
+            gsap.set(el, {
+                x: slot.x,
+                y: slot.y,
+                z: slot.z,
+                xPercent: -50,
+                yPercent: -50,
+                skewY: skew,
+                transformOrigin: 'center center',
+                zIndex: slot.zIndex,
+                force3D: true
+            });
+        };
 
-        const rect = container.getBoundingClientRect();
-        const xRel = x - rect.left - rect.width / 2;
-        const yRel = y - rect.top - rect.height / 2;
+        const total = cards.length;
+        let order = cards.map((_, i) => i);
+        let intervalRef;
+        let tlRef = null;
 
-        // Update CSS variables for Glow Position
-        // Percentages relative to the container for CSS left/top
-        const xPct = ((x - rect.left) / rect.width) * 100;
-        const yPct = ((y - rect.top) / rect.height) * 100;
+        const swap = (targetOriginalIndex = null) => {
+            if (order.length < 2) return;
+            if (tlRef && tlRef.isActive()) return;
 
-        container.style.setProperty('--mouse-x', `${xPct}%`);
-        container.style.setProperty('--mouse-y', `${yPct}%`);
+            let steps = 1;
+            if (targetOriginalIndex !== null) {
+                const targetIndexInOrder = order.indexOf(targetOriginalIndex);
+                if (targetIndexInOrder === 0) return; // Already front
+                if (targetIndexInOrder > 0) {
+                    steps = targetIndexInOrder;
+                }
+            }
 
-        const rotateMax = 10;
-        const rotateX = -(yRel / (rect.height / 2)) * rotateMax;
-        const rotateY = (xRel / (rect.width / 2)) * rotateMax;
+            const movingToBack = order.slice(0, steps);
+            const movingForward = order.slice(steps);
 
-        gsap.to(container, {
-            rotationX: rotateX,
-            rotationY: rotateY,
-            transformPerspective: 1000,
-            ease: "power1.out",
-            duration: 0.5
+            const tl = gsap.timeline();
+            tlRef = tl;
+
+            movingToBack.forEach((idx, i) => {
+                const elFront = cards[idx];
+                tl.to(elFront, {
+                    y: '+=500',
+                    duration: config.durDrop,
+                    ease: config.ease
+                }, i * 0.15); // Stagger drop
+            });
+
+            tl.addLabel('promote', `-=${config.durDrop * config.promoteOverlap}`);
+
+            movingForward.forEach((idx, i) => {
+                const el = cards[idx];
+                const slot = makeSlot(i, cardDistance, verticalDistance, total);
+                tl.set(el, { zIndex: slot.zIndex }, 'promote');
+                tl.to(
+                    el,
+                    {
+                        x: slot.x,
+                        y: slot.y,
+                        z: slot.z,
+                        duration: config.durMove,
+                        ease: config.ease
+                    },
+                    `promote+=${i * 0.15}`
+                );
+            });
+
+            tl.addLabel('return', `promote+=${config.durMove * config.returnDelay}`);
+
+            movingToBack.forEach((idx, i) => {
+                const elFront = cards[idx];
+                const backIndex = movingForward.length + i;
+                const slot = makeSlot(backIndex, cardDistance, verticalDistance, total);
+
+                tl.call(() => {
+                    gsap.set(elFront, { zIndex: slot.zIndex });
+                }, null, 'return');
+
+                tl.to(
+                    elFront,
+                    {
+                        x: slot.x,
+                        y: slot.y,
+                        z: slot.z,
+                        duration: config.durReturn,
+                        ease: config.ease
+                    },
+                    `return+=${i * 0.15}`
+                );
+            });
+
+            tl.call(() => {
+                order = [...movingForward, ...movingToBack];
+            });
+        };
+
+        const startInterval = () => {
+            clearInterval(intervalRef);
+            intervalRef = window.setInterval(() => swap(), delay);
+        };
+
+        cards.forEach((card, i) => {
+            placeNow(card, makeSlot(i, cardDistance, verticalDistance, total), skewAmount);
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+                swap(i);
+                startInterval(); // Reset interval continuously running
+            });
         });
-    };
 
-    container.addEventListener('mousemove', (e) => {
-        updateTilt(e.clientX, e.clientY);
-    });
-
-    // Ensure we trigger active state when scrolling onto the element (browser fires mouseenter)
-    container.addEventListener('mouseenter', (e) => {
-        // Update global trackers in case they were null
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        updateTilt(e.clientX, e.clientY);
-    });
-
-    container.addEventListener('mouseleave', resetTilt);
-
-    // Check on scroll if mouse is still over the element
-    window.addEventListener('scroll', () => {
-        if (mouseX === null || mouseY === null) return;
-
-        const rect = container.getBoundingClientRect();
-        // Check if mouse is within bounds
-        const isOver = (
-            mouseX >= rect.left &&
-            mouseX <= rect.right &&
-            mouseY >= rect.top &&
-            mouseY <= rect.bottom
-        );
-
-        if (!isOver) {
-            resetTilt();
-            container.classList.add('force-inactive');
-        } else {
-            // Optional: Update tilt as the element moves under the static mouse
-            container.classList.remove('force-inactive');
-            updateTilt(mouseX, mouseY);
-        }
-    });
+        setTimeout(() => {
+            swap();
+            startInterval();
+        }, 100);
+    } catch (err) {
+        console.error("CardSwap initialization failed:", err);
+    }
 }

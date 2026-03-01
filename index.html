@@ -49,8 +49,7 @@
 
 		<div class="container">
 			<div class="hero-content">
-				<div class="hero-title-group" data-reveal>
-					<div class="hero-accent-line"></div>
+				<div class="hero-title-group" data-reveal style="padding-left: 0;">
 					<h1 class="h-hero">
 						<span class="h-hero-top">Security from</span>
 						<span class="h-hero-accent">First Principles</span>
@@ -69,16 +68,17 @@
 	</header>
 
 	<!-- Intro / Philosophy -->
-	<section class="section" id="technology" style="padding: 0; margin-top: -1px;">
+	<section class="section" id="philosophy" style="padding: 0; margin-top: -1px;">
 		<div class="container">
 			<div class="intro-text">
 				<div class="intro-bg"></div>
 				<!-- Removed Eyebrow -->
 				<div class="intro-stat-container">
 					<h2 class="intro-stat">
-						<span class="anim-text">We deliver security beyond the limits of software.</span>
-						<span class="anim-text">Leveraging miniaturized physical-layer security.</span>
-						<span class="anim-text" style="color: var(--color-accent);">To guarantee out-of-the-box business
+						<span class="anim-text">We deliver security <br> beyond the limits of software.</span>
+						<span class="anim-text">Leveraging miniaturized <br> physical-layer security.</span>
+						<span class="anim-text" style="color: var(--color-accent);">To guarantee out-of-the-box <br>
+							business
 							continuity.</span>
 					</h2>
 				</div>
@@ -88,7 +88,7 @@
 
 	<!-- Product Showcase -->
 	<section class="section product-section" id="product">
-		<div class="product-card" data-reveal>
+		<div class="product-card">
 			<div class="product-grid">
 				<div class="product-content">
 					<div class="eyebrow">Product</div>
@@ -137,48 +137,90 @@
 	</section>
 
 	<!-- Features Grid (Bento) -->
-	<section class="section">
-		<div class="container">
-			<div class="section-header" style="margin-bottom: 4rem;">
-				<div class="eyebrow">Core Technology</div>
-				<h2 class="h-medium">Uncompromising Security</h2>
+	<section class="section" id="technology">
+		<div class="product-grid" style="align-items: flex-start; margin-bottom: 2rem; grid-template-columns: 1fr;">
+			<div class="product-content" style="padding-bottom: 0; padding-top: 0;">
+				<div class="eyebrow">Technology</div>
+				<h2 class="h-large" style="margin-bottom: 0;">Uncompromising <br> Security</h2>
 			</div>
+		</div>
 
-			<div class="bento-grid">
+		<div style="height: 600px; position: relative;">
+			<div class="card-swap-container" id="tech-card-swap">
 				<!-- Card 1 -->
-				<div class="bento-card" data-reveal>
-					<div class="card-icon">⎋</div>
-					<h3>Offline Disk Controller</h3>
-					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
-						The NAS dynamically manages physical access to storage using multiplexers configured by an
-						auxiliary computer.
-						Security is guaranteed by security domain segmentation and data diodes.
-					</p>
-				</div>
-
-				<!-- Card 2 -->
-				<div class="bento-card" data-reveal>
-					<div class="card-icon">❄️</div>
-					<h3>Guaranteed Continuity</h3>
-					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
-						Offline copies remain secure even if hackers gain root-level access.
-						Transforms cold backup creation from labor-intensive to automatic.
-					</p>
-				</div>
-
-				<!-- Card 3 (Wide) -->
-				<div class="bento-card wide" data-reveal>
-					<div class="card-image">
-						<img src="https://placehold.co/800x300/222/555?text=Tamper+Protection+Mechanisms"
-							alt="Tamper Protection">
+				<div class="card">
+					<div class="card-header">
+						<span class="card-icon">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+								<circle cx="12" cy="12" r="10"></circle>
+							</svg>
+						</span>
+						<h3>Offline Disk Controller</h3>
 					</div>
-					<h3>Tamper Protection Mechanisms</h3>
-					<p class="p-large" style="font-size: 1rem; margin-top: 1rem;">
-						Sensors embedded in the casing, audio alarms, and phone notifications on admin access.
-						Physical interference is immediately detectable and leaves verifiable evidence.
-					</p>
+					<div class="card-body">
+						<p>The NAS dynamically manages physical access to storage using multiplexers configured by an
+							auxiliary computer. Security is guaranteed by security domain segmentation and data diodes.
+						</p>
+					</div>
+				</div>
+				<!-- Card 2 -->
+				<div class="card">
+					<div class="card-header">
+						<span class="card-icon">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="4" y1="21" x2="4" y2="14"></line>
+								<line x1="4" y1="10" x2="4" y2="3"></line>
+								<line x1="12" y1="21" x2="12" y2="12"></line>
+								<line x1="12" y1="8" x2="12" y2="3"></line>
+								<line x1="20" y1="21" x2="20" y2="16"></line>
+								<line x1="20" y1="12" x2="20" y2="3"></line>
+								<line x1="1" y1="14" x2="7" y2="14"></line>
+								<line x1="9" y1="8" x2="15" y2="8"></line>
+								<line x1="17" y1="16" x2="23" y2="16"></line>
+							</svg>
+						</span>
+						<h3>Guaranteed Continuity</h3>
+					</div>
+					<div class="card-body">
+						<p>Offline copies remain secure even if hackers gain root-level access. Transforms cold backup
+							creation from labor-intensive to automatic.</p>
+					</div>
+				</div>
+				<!-- Card 3 -->
+				<div class="card">
+					<div class="card-header">
+						<span class="card-icon">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+							</svg>
+						</span>
+						<h3>Tamper Protection</h3>
+					</div>
+					<div class="card-body">
+						<p>Sensors embedded in the casing, audio alarms, and phone notifications on admin access.
+							Physical interference is immediately detectable and leaves verifiable evidence.</p>
+					</div>
+				</div>
+				<!-- Card 4 -->
+				<div class="card">
+					<div class="card-header">
+						<span class="card-icon">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+							</svg>
+						</span>
+						<h3>Instant Recovery</h3>
+					</div>
+					<div class="card-body">
+						<p>Recover your complete infrastructure within minutes instead of days. Fully automated
+							restoration process minimizing business downtime to absolute zero.</p>
+					</div>
 				</div>
 			</div>
+		</div>
 		</div>
 	</section>
 
