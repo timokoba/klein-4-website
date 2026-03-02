@@ -35,10 +35,10 @@
 			<div class="nav-links">
 				<a href="#product" class="nav-link">Product</a>
 				<a href="#technology" class="nav-link">Technology</a>
-				<a href="#news" class="nav-link">News</a>
 				<a href="#pilot" class="nav-link">Pilot Series</a>
+				<a href="#faq" class="nav-link">FAQ</a>
 			</div>
-			<a href="#contact" class="nav-cta button-outline">Contact</a>
+			<a href="mailto:koba@klein-4.com" class="nav-cta button-outline">Contact</a>
 		</div>
 	</nav>
 
@@ -50,9 +50,11 @@
 		<div class="container">
 			<div class="hero-content">
 				<div class="hero-title-group" data-reveal style="padding-left: 0;">
-					<h1 class="h-hero">
-						<span class="h-hero-top">Security from</span>
-						<span class="h-hero-accent">First Principles</span>
+					<h1
+						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3rem; display: flex; flex-direction: column;">
+						<span class="h-hero-top" style="margin-bottom: 0.3em; letter-spacing: 0.15em;">Security
+							from</span>
+						<span class="h-hero-accent" style="font-weight: 400; text-shadow: none;">First Principles</span>
 					</h1>
 				</div>
 				<p class="hero-sub" data-reveal>
@@ -92,7 +94,9 @@
 			<div class="product-grid">
 				<div class="product-content">
 					<div class="eyebrow">Product</div>
-					<h2 class="h-large">Next Generation <br>NAS</h2>
+					<h2
+						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;">
+						Next <br> Generation <br> NAS</h2>
 					<p class="p-large">
 						Our innovative solution to protect your valuable data. Built for the European SME market
 						with
@@ -102,8 +106,11 @@
 					<ul class="feature-list">
 						<li class="feature-item">
 							<div class="feature-icon">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-									<rect x="2" y="2" width="20" height="20" rx="2" />
+								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.5">
+									<rect x="3" y="3" width="18" height="18" rx="3" />
+									<rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"
+										fill-opacity="0.3" />
 								</svg>
 							</div>
 							<div>
@@ -114,8 +121,11 @@
 						</li>
 						<li class="feature-item">
 							<div class="feature-icon">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-									<rect x="2" y="2" width="20" height="20" rx="2" />
+								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="1.5">
+									<rect x="3" y="3" width="18" height="18" rx="3" />
+									<rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"
+										fill-opacity="0.3" />
 								</svg>
 							</div>
 							<div>
@@ -137,202 +147,345 @@
 	</section>
 
 	<!-- Features Grid (Bento) -->
-	<section class="section" id="technology">
-		<div class="product-grid" style="align-items: flex-start; margin-bottom: 2rem; grid-template-columns: 1fr;">
-			<div class="product-content" style="padding-bottom: 0; padding-top: 0;">
-				<div class="eyebrow">Technology</div>
-				<h2 class="h-large" style="margin-bottom: 0;">Uncompromising <br> Security</h2>
-			</div>
-		</div>
+	<section class="section" id="technology"
+		style="padding: 0; height: 100vh; display: flex; align-items: center; overflow: visible; position: relative;">
+		<div class="container" style="position: relative; z-index: 1;">
+			<div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: center;">
+				<!-- Left Column: Title & Specs -->
+				<div>
+					<div class="eyebrow">Technology</div>
+					<h2
+						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;">
+						Physical <br> Layer <br> Security</h2>
 
-		<div style="height: 600px; position: relative;">
-			<div class="card-swap-container" id="tech-card-swap">
-				<!-- Card 1 -->
-				<div class="card">
-					<div class="card-header">
-						<span class="card-icon">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-								<circle cx="12" cy="12" r="10"></circle>
-							</svg>
-						</span>
-						<h3>Offline Disk Controller</h3>
-					</div>
-					<div class="card-body">
-						<p>The NAS dynamically manages physical access to storage using multiplexers configured by an
-							auxiliary computer. Security is guaranteed by security domain segmentation and data diodes.
-						</p>
-					</div>
-				</div>
-				<!-- Card 2 -->
-				<div class="card">
-					<div class="card-header">
-						<span class="card-icon">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-								<line x1="4" y1="21" x2="4" y2="14"></line>
-								<line x1="4" y1="10" x2="4" y2="3"></line>
-								<line x1="12" y1="21" x2="12" y2="12"></line>
-								<line x1="12" y1="8" x2="12" y2="3"></line>
-								<line x1="20" y1="21" x2="20" y2="16"></line>
-								<line x1="20" y1="12" x2="20" y2="3"></line>
-								<line x1="1" y1="14" x2="7" y2="14"></line>
-								<line x1="9" y1="8" x2="15" y2="8"></line>
-								<line x1="17" y1="16" x2="23" y2="16"></line>
-							</svg>
-						</span>
-						<h3>Guaranteed Continuity</h3>
-					</div>
-					<div class="card-body">
-						<p>Offline copies remain secure even if hackers gain root-level access. Transforms cold backup
-							creation from labor-intensive to automatic.</p>
+					<div class="specs-label">Specifications</div>
+					<div class="specs-grid">
+						<div class="spec-item">
+							<span class="spec-name">CPU</span>
+							<span class="spec-value">5 GHz</span>
+						</div>
+						<div class="spec-item">
+							<span class="spec-name">RAM</span>
+							<span class="spec-value">16 GB</span>
+						</div>
+						<div class="spec-item">
+							<span class="spec-name">Storage</span>
+							<span class="spec-value">8–160 TB</span>
+						</div>
+						<div class="spec-item">
+							<span class="spec-name">Power</span>
+							<span class="spec-value">400 W</span>
+						</div>
+						<div class="spec-item">
+							<span class="spec-name">Networking</span>
+							<span class="spec-value">8 Gbps</span>
+						</div>
+						<div class="spec-item">
+							<span class="spec-name">Encryption</span>
+							<span class="spec-value">AES-256</span>
+						</div>
 					</div>
 				</div>
-				<!-- Card 3 -->
-				<div class="card">
-					<div class="card-header">
-						<span class="card-icon">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-							</svg>
-						</span>
-						<h3>Tamper Protection</h3>
+
+				<!-- Right Column: Cards -->
+				<div style="height: 480px; position: relative;">
+					<div class="card-swap-container" id="tech-card-swap">
+						<!-- Card 1: Automated Cold Backups -->
+						<div class="card">
+							<div class="card-header">
+								<span class="card-icon">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="12" y1="2" x2="12" y2="6"></line>
+										<line x1="12" y1="18" x2="12" y2="22"></line>
+										<line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+										<line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+										<line x1="2" y1="12" x2="6" y2="12"></line>
+										<line x1="18" y1="12" x2="22" y2="12"></line>
+										<line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+										<line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+									</svg>
+								</span>
+								<h3>Automated Cold Backups</h3>
+							</div>
+							<div class="card-body">
+								<p>Offline copies of your data remain secure in case of any cyber intrusion, even if the
+									hacker
+									gains unrestricted root-level access on all networked devices. Cold backups ensure
+									data
+									survivability against insider threats and sophisticated state-sponsored
+									actors.<br><br>
+									Klein 4 NAS
+									transforms cold backup creation from a labour-intensive and error-prone task into an
+									automatic
+									and continuous process.
+								</p>
+							</div>
+						</div>
+						<!-- Card 2: Continuity of Business Operations -->
+						<div class="card">
+							<div class="card-header">
+								<span class="card-icon">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="23 4 23 10 17 10"></polyline>
+										<polyline points="1 20 1 14 7 14"></polyline>
+										<path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+										<path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+									</svg>
+								</span>
+								<h3>Continuity of Business Operations</h3>
+							</div>
+							<div class="card-body">
+								<p>Ransomware and human error alike can bring business to a standstill by making
+									critical data
+									unavailable. When key files are deleted or otherwise made inaccessible, teams
+									scramble to
+									recover or recreate them.<br><br>
+									Such
+									troubles are
+									prevented by restoring files from a physically air-gapped but frequently updated
+									copy,
+									ensuring Business Continuity and robustly mitigating any unexpected IT problems, no
+									matter
+									the source.
+								</p>
+							</div>
+						</div>
+						<!-- Card 3: Offline Disk Controller -->
+						<div class="card">
+							<div class="card-header">
+								<span class="card-icon">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+										<rect x="9" y="9" width="6" height="6"></rect>
+										<line x1="9" y1="1" x2="9" y2="4"></line>
+										<line x1="15" y1="1" x2="15" y2="4"></line>
+										<line x1="9" y1="20" x2="9" y2="23"></line>
+										<line x1="15" y1="20" x2="15" y2="23"></line>
+										<line x1="20" y1="9" x2="23" y2="9"></line>
+										<line x1="20" y1="14" x2="23" y2="14"></line>
+										<line x1="1" y1="9" x2="4" y2="9"></line>
+										<line x1="1" y1="14" x2="4" y2="14"></line>
+									</svg>
+								</span>
+								<h3>Offline Disk Controller</h3>
+							</div>
+							<div class="card-body">
+								<p>The device dynamically manages the physical access to the data storage using
+									multiplexers
+									configured according to the policy enforced by an auxiliary computer, called Offline
+									Disk
+									Controller. Its security is guaranteed due to security domain segmentation and use
+									of data
+									diodes to control the information flow.</p>
+							</div>
+						</div>
+						<!-- Card 4: Tamper-Proofing -->
+						<div class="card">
+							<div class="card-header">
+								<span class="card-icon">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff"
+										stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+										<rect x="10" y="10" width="4" height="5" rx="1"></rect>
+										<circle cx="12" cy="8" r="1" fill="#fff"></circle>
+									</svg>
+								</span>
+								<h3>Tamper-Proofing</h3>
+							</div>
+							<div class="card-body">
+								<p>The device features a range of tamper-evident and tamper-resistant hardening, from
+									sensors
+									embedded in the casing and security tags, through audio alarm, to phone
+									notifications on
+									admin access.</p>
+							</div>
+						</div>
 					</div>
-					<div class="card-body">
-						<p>Sensors embedded in the casing, audio alarms, and phone notifications on admin access.
-							Physical interference is immediately detectable and leaves verifiable evidence.</p>
-					</div>
-				</div>
-				<!-- Card 4 -->
-				<div class="card">
-					<div class="card-header">
-						<span class="card-icon">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-								<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-							</svg>
-						</span>
-						<h3>Instant Recovery</h3>
-					</div>
-					<div class="card-body">
-						<p>Recover your complete infrastructure within minutes instead of days. Fully automated
-							restoration process minimizing business downtime to absolute zero.</p>
-					</div>
-				</div>
-			</div>
-		</div>
-		</div>
+				</div><!-- end right column -->
+			</div><!-- end 2-col grid -->
+		</div><!-- end container -->
 	</section>
 
-	<!-- Partners / Marquee -->
-	<section class="marquee-wrap">
-		<div class="marquee-content">
-			<span class="partner-logo">CISPA Helmholtz Center</span>
-			<span class="partner-logo">UNTERNEHMER TUM</span>
-			<span class="partner-logo">PALLADION Defence Accelerator</span>
-			<span class="partner-logo">CISPA Helmholtz Center</span>
-			<span class="partner-logo">UNTERNEHMER TUM</span>
-			<span class="partner-logo">PALLADION Defence Accelerator</span>
-		</div>
-	</section>
+	<!-- Pilot Application -->
+	<section class="section pilot-section" id="pilot">
+		<div class="pilot-card">
+			<canvas id="plasma-canvas"></canvas>
+			<div class="container" style="position: relative; z-index: 1;">
+				<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;">
 
-	<!-- News & Pilot Application -->
-	<section class="section" id="news" style="padding-bottom: 0;">
-		<div class="container">
-			<div class="news-block" data-reveal>
-				<div class="news-date">17.02.2026</div>
-				<h3 class="h-medium">Pilot Series Now Open</h3>
-				<p class="p-large">
-					Applications are currently being accepted for the initial deployment phase.
-					Be among the first to secure your infrastructure with physical-layer guarantees.
-				</p>
-			</div>
-		</div>
-	</section>
+					<!-- Left Column: Benefits -->
+					<div style="width: 100%;">
+						<!-- Orange Title -->
+						<div class="eyebrow" style="font-size: 1rem; font-weight: 500; letter-spacing: 0.15em;">
+							Pilot Series
+						</div>
 
-	<section class="section" id="pilot"
-		style="background: linear-gradient(180deg, var(--color-bg-dark) 0%, #111 100%);">
-		<div class="container">
-			<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 4rem;">
-				<div data-reveal>
-					<div class="eyebrow">Join the Pilot</div>
-					<h2 class="h-medium">Apply for<br>Pilot Series Beta</h2>
-					<p class="p-large" style="margin-bottom: 2rem;">
-						We are selecting a limited number of partners for our pilot series.
-						Tell us about your infrastructure needs.
-					</p>
+						<!-- White Title -->
+						<h2
+							style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;">
+							Apply for <br> Limited <br> Pilot Series
+						</h2>
 
-					<ul class="feature-list" style="border: none;">
-						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
-							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
-							Early access to hardware
-						</li>
-						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
-							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
-							Direct engineering support
-						</li>
-						<li class="feature-item" style="border: none; padding: 0; margin-bottom: 1rem;">
-							<span style="color: var(--color-accent); margin-right: 1rem;">✓</span>
-							Preferential pricing
-						</li>
-					</ul>
+						<!-- Grey text -->
+						<div class="specs-label" style="margin-bottom: 2rem; color: var(--color-text-muted);">
+							Your Benefits
+						</div>
+
+						<!-- Bullet points -->
+						<ul
+							style="list-style: none; padding: 0; margin: 0; text-align: left; display: flex; flex-direction: column; gap: 1.2rem;">
+							<li style="display: flex; align-items: center; gap: 1rem;">
+								<span
+									style="color: var(--color-accent); font-size: 1.2rem; width: 24px; text-align: center;">🗸</span>
+								<h4
+									style="margin: 0; font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;">
+									First 3 months free of charge</h4>
+							</li>
+							<li style="display: flex; align-items: center; gap: 1rem;">
+								<span
+									style="color: var(--color-accent); font-size: 1.2rem; width: 24px; text-align: center;">🗸</span>
+								<h4
+									style="margin: 0; font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;">
+									Controlled early deployment of next-generation NAS</h4>
+							</li>
+							<li style="display: flex; align-items: center; gap: 1rem;">
+								<span
+									style="color: var(--color-accent); font-size: 1.2rem; width: 24px; text-align: center;">🗸</span>
+								<h4
+									style="margin: 0; font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;">
+									Direct collaboration with our hardware and security engineers</h4>
+							</li>
+							<li style="display: flex; align-items: center; gap: 1rem;">
+								<span
+									style="color: var(--color-accent); font-size: 1.2rem; width: 24px; text-align: center;">🗸</span>
+								<h4
+									style="margin: 0; font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;">
+									Tailored integration into your existing IT environment</h4>
+							</li>
+							<li style="display: flex; align-items: center; gap: 1rem;">
+								<span
+									style="color: var(--color-accent); font-size: 1.2rem; width: 24px; text-align: center;">🗸</span>
+								<h4
+									style="margin: 0; font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;">
+									Founding-partner status for future production releases</h4>
+							</li>
+						</ul>
+					</div>
+
+					<!-- Right Column: Form -->
+					<div class="form-container"
+						style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2.5rem; border-radius: 6px;">
+						<form action="#" method="POST" id="pilot-form" novalidate>
+							<div class="form-group" style="margin-bottom: 2rem; position: relative;">
+								<label class="pilot-form-label">Full Name<span class="required">*</span></label>
+								<input type="text" name="name" class="pilot-form-input" placeholder="e.g. Jane Doe"
+									required>
+								<div class="form-error">Please enter your full name.</div>
+							</div>
+							<div class="form-group" style="margin-bottom: 2rem; position: relative;">
+								<label class="pilot-form-label">Company Email<span class="required">*</span></label>
+								<input type="email" name="email" class="pilot-form-input" placeholder="name@company.com"
+									required>
+								<div class="form-error">Please enter a valid email address.</div>
+							</div>
+							<div class="form-group" style="margin-bottom: 2rem; position: relative;">
+								<label class="pilot-form-label">Infrastructure Scale<span
+										class="required">*</span></label>
+								<div class="select-wrapper">
+									<select name="scale" class="pilot-form-input" required>
+										<option value="" disabled selected style="background: #111;">Select size...
+										</option>
+										<option value="small" style="background: #111; color: #fff;">Small (<
+												10TB)</option>
+										<option value="medium" style="background: #111; color: #fff;">Medium (10TB -
+											100TB)</option>
+										<option value="large" style="background: #111; color: #fff;">Large (> 100TB)
+										</option>
+									</select>
+								</div>
+								<div class="form-error">Please select your infrastructure scale.</div>
+							</div>
+							<div class="form-group" style="margin-bottom: 3rem; position: relative;">
+								<label class="pilot-form-label">Message</label>
+								<textarea name="message" class="pilot-form-input" rows="3"
+									placeholder="Tell us about your security needs..." style="resize: none;"></textarea>
+							</div>
+							<button type="submit" class="pilot-form-btn">Submit Application</button>
+						</form>
+					</div>
+
 				</div>
-
-				<div class="form-container" data-reveal>
-					<form action="#" method="POST">
-						<div class="form-group">
-							<label class="form-label">Full Name</label>
-							<input type="text" class="form-input" placeholder="e.g. Jane Doe">
-						</div>
-						<div class="form-group">
-							<label class="form-label">Company Email</label>
-							<input type="email" class="form-input" placeholder="name@company.com">
-						</div>
-						<div class="form-group">
-							<label class="form-label">Infrastructure Scale</label>
-							<select class="form-input">
-								<option>Select size...</option>
-								<option>Small (< 10TB)</option>
-								<option>Medium (10TB - 100TB)</option>
-								<option>Large (> 100TB)</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label class="form-label">Message</label>
-							<textarea class="form-textarea" rows="4"
-								placeholder="Tell us about your security needs..."></textarea>
-						</div>
-						<button type="submit" class="button-primary" style="width: 100%;">Submit Application</button>
-					</form>
-				</div>
 			</div>
-		</div>
 	</section>
 
 	<!-- Q&A Section -->
-	<section class="section">
-		<div class="container" style="max-width: 800px;">
-			<div class="section-header" style="text-align: center; margin-bottom: 4rem;">
-				<div class="eyebrow" style="justify-content: center;">FAQ</div>
-				<h2 class="h-medium">Common Questions</h2>
-			</div>
+	<section class="section" id="faq">
+		<div class="faq-card">
+			<div class="container" style="position: relative; z-index: 2; max-width: 900px; text-align: center;">
+				<div style="margin-bottom: 4rem;">
+					<h2
+						style="font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.2; color: #ffffff; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;">
+						Frequently Asked Questions
+					</h2>
+				</div>
 
-			<div class="feature-item" style="display: block;">
-				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">How does the Offline Disk Controller
-					work?</h4>
-				<p style="color: var(--color-text-muted);">It physically severs the connection to backup disks using
-					hardware multiplexers, ensuring no software vulnerability can bridge the gap.</p>
-			</div>
-			<div class="feature-item" style="display: block;">
-				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">Is it compatible with existing
-					infrastructure?</h4>
-				<p style="color: var(--color-text-muted);">Yes, Klein 4 NAS is designed to integrate as a standard
-					network appliance while providing superior physical security.</p>
-			</div>
-			<div class="feature-item" style="display: block; border: none;">
-				<h4 style="margin-bottom: 0.5rem; color: var(--color-text-main);">Where is the data stored?</h4>
-				<p style="color: var(--color-text-muted);">Data is stored locally on high-performance drives within the
-					tamper-proof chassis. No cloud dependencies.</p>
+				<div style="display: flex; flex-direction: column; gap: 2rem;">
+
+					<!-- Item 1 -->
+					<div class="qa-item-fancy">
+						<div class="qa-glow"></div>
+						<h4 class="qa-question">
+							Who is the target audience?
+						</h4>
+						<p class="qa-answer">
+							The device is built specifically for European SMEs and shaped by over 100 in-depth customer
+							interviews, with particular emphasis on engineering companies and creative agencies.
+						</p>
+					</div>
+
+					<!-- Item 2 -->
+					<div class="qa-item-fancy">
+						<div class="qa-glow"></div>
+						<h4 class="qa-question">
+							How does it integrate into our existing workflow?
+						</h4>
+						<p class="qa-answer">
+							It integrates seamlessly with your existing workflows and systems, including Microsoft 365,
+							enabling your team to maintain established processes while the device operates unobtrusively
+							in the background.
+						</p>
+					</div>
+
+					<!-- Item 3 -->
+					<div class="qa-item-fancy">
+						<div class="qa-glow"></div>
+						<h4 class="qa-question">
+							Can I access my files remotely?
+						</h4>
+						<p class="qa-answer">
+							The NAS can be accessed remotely via a secure, end-to-end encrypted proxy connection through
+							the K4OS platform, allowing you to reach your files from outside the office.
+						</p>
+					</div>
+
+					<!-- Item 4 -->
+					<div class="qa-item-fancy">
+						<div class="qa-glow"></div>
+						<h4 class="qa-question">
+							What happens in case of a security incident?
+						</h4>
+						<p class="qa-answer">
+							The NAS supports role-based permissions at both user and group level, allowing you to
+							precisely control who can view, edit, or share specific folders. All administrative access
+							is logged, and suspicious activity is flagged, helping you detect, contain, and respond to
+							potential security incidents.
+						</p>
+					</div>
+
+				</div>
 			</div>
 		</div>
 	</section>
@@ -352,30 +505,27 @@
 				</div>
 
 				<div class="footer-col">
-					<h4>Product</h4>
-					<ul class="footer-links">
-						<li><a href="#">Overview</a></li>
-						<li><a href="#">Technology</a></li>
-						<li><a href="#">Pilot Series</a></li>
-					</ul>
+					<a href="#product">
+						<h4>Product</h4>
+					</a>
 				</div>
 
 				<div class="footer-col">
-					<h4>Company</h4>
-					<ul class="footer-links">
-						<li><a href="#">About</a></li>
-						<li><a href="#">Jobs</a></li>
-						<li><a href="#">Press</a></li>
-						<li><a href="#">Contact</a></li>
-					</ul>
+					<a href="#technology">
+						<h4>Technology</h4>
+					</a>
 				</div>
 
 				<div class="footer-col">
-					<h4>Legal</h4>
-					<ul class="footer-links">
-						<li><a href="#">Imprint</a></li>
-						<li><a href="#">Privacy</a></li>
-					</ul>
+					<a href="#pilot">
+						<h4>Pilot Series</h4>
+					</a>
+				</div>
+
+				<div class="footer-col">
+					<h4>Contact</h4>
+					<p><a href="mailto:koba@klein-4.com"
+							style="color: var(--color-text-muted); font-size: 0.95rem;">koba@klein-4.com</a></p>
 				</div>
 			</div>
 

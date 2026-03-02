@@ -379,10 +379,12 @@ h6 {
     top: 50%;
     transform: translateY(-50%) translateY(20px);
     opacity: 0;
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    line-height: 1.25;
+    font-size: clamp(1.6rem, 3vw, 2.8rem);
+    line-height: 1.3;
     color: rgba(255, 255, 255, 0.9);
-    font-weight: 300;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     /* Lighter weight for cleaner tech look */
     letter-spacing: -0.01em;
 }
@@ -434,15 +436,17 @@ h6 {
 
 /* ------------------------- Product Showcas ------------------------- */
 .product-section {
-    background-color: #000000;
+    background: linear-gradient(to bottom, #000000 0%, #000000 85%, transparent 100%);
+    position: relative;
+    z-index: 11;
     overflow: hidden;
-    padding: 0 8px;
+    padding: 0;
 }
 
 .product-card {
     position: relative;
     height: 100vh;
-    border-radius: 8px;
+    border-radius: 0;
     background-image: url('../images/Background Image NAS.jpg');
     background-size: cover;
     background-position: center right;
@@ -450,7 +454,17 @@ h6 {
     border: none;
     box-shadow: none;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
 }
 
 .product-card::before {
@@ -469,8 +483,8 @@ h6 {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
     gap: 2rem;
-    align-items: flex-end;
-    /* Align to bottom */
+    align-items: center;
+    /* Vertically center content */
     width: 100%;
     max-width: var(--container-max);
     margin: 0 auto;
@@ -478,8 +492,7 @@ h6 {
 }
 
 .product-content {
-    padding-bottom: 4.5rem;
-    /* Reduced from 6rem to shift the text down away from the header */
+    padding-bottom: 0;
 }
 
 /* Enhancing Product Content Typography for Deep Tech Feel */
@@ -503,11 +516,14 @@ h6 {
 }
 
 .product-image-container {
-    position: relative;
+    position: absolute;
+    right: 0;
+    bottom: -120px;
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    width: 100%;
+    width: 55%;
+    z-index: 2;
 }
 
 .product-img {
@@ -545,12 +561,27 @@ h6 {
 }
 
 .feature-icon {
-    width: 24px;
-    height: 24px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-accent);
     flex-shrink: 0;
-    filter: drop-shadow(0 0 10px rgba(233, 113, 50, 0.4));
-    /* Deep tech glow on icons */
+    position: relative;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(233, 113, 50, 0.12) 0%, rgba(233, 113, 50, 0.03) 100%);
+    border: 1px solid rgba(233, 113, 50, 0.3);
+    box-shadow:
+        inset 0 0 15px rgba(233, 113, 50, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(233, 113, 50, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.feature-icon svg {
+    filter: drop-shadow(0 0 8px rgba(233, 113, 50, 0.6));
 }
 
 .feature-item h4 {
@@ -785,6 +816,124 @@ h6 {
     border-color: var(--color-accent);
 }
 
+/* ------------------------- Q&A Section ------------------------- */
+#faq {
+    padding: 0;
+}
+
+.faq-card {
+    position: relative;
+    min-height: 100vh;
+    border-radius: 0;
+    /* Use URL-encoded spaces (%20) and ampersand (%26) */
+    background-image: url('../images/Background%20Image%20Q%26A.jpg');
+    background-size: cover;
+    background-position: center center;
+    overflow: hidden;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 6rem 1rem;
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+}
+
+.faq-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Deep tech overlay to ensure text readability over the image */
+    background: linear-gradient(180deg, rgba(8, 8, 8, 0.95) 0%, rgba(8, 8, 8, 0.6) 50%, rgba(8, 8, 8, 0.95) 100%);
+    z-index: 1;
+}
+
+.qa-item-fancy {
+    position: relative;
+    /* Adjusted transparency to look great over the new background image */
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    text-align: center;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.qa-item-fancy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(233, 113, 50, 0.6), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.qa-item-fancy:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    /* Increase glassmorphic contrast on hover */
+    background: linear-gradient(145deg, rgba(20, 20, 20, 0.7) 0%, rgba(10, 10, 10, 0.4) 100%);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(233, 113, 50, 0.15);
+}
+
+.qa-item-fancy:hover::before {
+    opacity: 1;
+}
+
+.qa-glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(233, 113, 50, 0.15) 0%, transparent 70%);
+    top: -75px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.qa-item-fancy:hover .qa-glow {
+    opacity: 1;
+}
+
+.qa-question {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 2;
+}
+
+.qa-answer {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0 auto;
+    max-width: 700px;
+    font-weight: 300;
+    position: relative;
+    z-index: 2;
+}
+
 /* ------------------------- Footer ------------------------- */
 .footer {
     background-color: var(--color-bg-alt);
@@ -795,7 +944,7 @@ h6 {
 
 .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
     gap: 3rem;
     margin-bottom: 4rem;
 }
@@ -805,6 +954,11 @@ h6 {
     font-size: 0.9rem;
     text-transform: uppercase;
     color: var(--color-text-muted);
+    transition: color 0.3s ease;
+}
+
+.footer-col a:hover h4 {
+    color: var(--color-text-main);
 }
 
 .footer-links li {
@@ -889,18 +1043,289 @@ h6 {
     clip-path: inset(0% 100% 0% 0%);
 }
 
+/* ------------------------- Technology Section Background ------------------------- */
+#technology {
+    position: relative;
+    overflow: visible;
+    z-index: 10;
+}
+
+#technology::before {
+    content: '';
+    position: absolute;
+    top: -20vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 20vh, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20vh, black 100%);
+}
+
+
+#technology>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* ------------------------- Specs Grid ------------------------- */
+.specs-label {
+    font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    /* Deep tech 1px separator lines via background peeking through the gap */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 440px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(145deg, rgba(15, 15, 15, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+}
+
+.spec-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 0%;
+    background: var(--color-accent);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.spec-item:hover {
+    background: linear-gradient(145deg, rgba(25, 25, 25, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
+    box-shadow: inset 0 0 20px rgba(233, 113, 50, 0.05);
+}
+
+.spec-item:hover::before {
+    opacity: 1;
+    height: 100%;
+}
+
+.spec-name {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.spec-value {
+    font-size: 1.25rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 480px) {
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spec-item:nth-child(3n) {
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .spec-item:nth-child(2n) {
+        border-right: none;
+    }
+}
+
+/* ------------------------- Pilot Card ------------------------- */
+.pilot-section {
+    background-color: #000000;
+    overflow: hidden;
+    padding: 0 8px;
+    /* Matches product section to align sizes perfectly */
+    position: relative;
+    z-index: 1;
+}
+
+.pilot-card {
+    position: relative;
+    height: 100vh;
+    border-radius: 8px;
+    background: #080808;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+#plasma-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+}
+
+/* ------------------------- Pilot Form ------------------------- */
+.pilot-form-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+}
+
+.pilot-form-label .required {
+    color: var(--color-accent);
+    margin-left: 0.2rem;
+}
+
+.pilot-form-input {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #0e0e0e;
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: var(--font-body);
+}
+
+.pilot-form-input:hover {
+    background: #161616;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.pilot-form-input:focus {
+    background: #111;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(233, 113, 50, 0.15);
+}
+
+.pilot-form-input.invalid {
+    border-color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.05);
+}
+
+.form-error {
+    position: absolute;
+    bottom: -1.4rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: #ff4d4d;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.form-error.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+select.pilot-form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 3rem;
+}
+
+select.pilot-form-input:invalid {
+    color: var(--color-text-muted);
+}
+
+.pilot-form-btn {
+    width: 100%;
+    border-radius: 4px;
+    padding: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    background: var(--color-accent);
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.pilot-form-btn:hover {
+    background: #fff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
 /* ------------------------- Card Swap ------------------------- */
 .card-swap-container {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    transform: translate(5%, 20%);
-    transform-origin: bottom right;
+    top: 30%;
+    right: 9%;
+    transform: translateY(-55%);
+    transform-origin: center right;
 
     perspective: 900px;
     overflow: visible;
-    width: 500px;
-    height: 400px;
+    width: 650px;
+    height: 430px;
 }
 
 .card {
@@ -909,31 +1334,116 @@ h6 {
     left: 50%;
     border-radius: 12px;
     border: 1px solid #fff;
-    background: #000;
+    background-image: url('../images/Background%20Image%20Cards.jpg');
+    background-size: cover;
+    background-position: center;
 
     transform-style: preserve-3d;
     will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 
-    width: 500px;
-    height: 400px;
-    padding: 3rem;
+    width: 650px;
+    height: 430px;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    transition: border-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.4s ease;
 }
 
-.card h3 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(8, 8, 8, 0.95) 0%, rgba(8, 8, 8, 0.6) 100%);
+    transition: opacity 0.4s ease;
+    z-index: 0;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.15), inset 0 0 10px rgba(255, 255, 255, 0.05);
+    filter: brightness(1.15);
+}
+
+.card:hover::before {
+    opacity: 0.8;
+}
+
+/* Card header — title area at the very top */
+.card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid #fff;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    min-height: 42px;
+    background: transparent;
+}
+
+.card .card-header .card-icon {
     color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    position: relative;
+    top: 10px;
 }
 
-.card p {
+.card .card-header .card-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.card .card-header h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 0.01em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Card body — text area below separator */
+.card .card-body {
+    padding: 2.5rem 2rem;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+.card .card-body p {
     font-size: 1.1rem;
-    color: #aaa;
-    line-height: 1.6;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.8;
+    margin: 0;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+/* Grainient canvas covering whole card */
+.grainient-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.45;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 0;
 }
 
 @media (max-width: 768px) {

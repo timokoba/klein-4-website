@@ -22,8 +22,11 @@ function initAll() {
     initHeroAnimation();
     initNavScroll();
     initIntroTextScroll();
-    initProductAnimation();
+    initSectionAnimations();
     initCardSwap();
+    // initGrainient();
+    initPlasma();
+    initPilotForm();
 }
 
 function initUniverseStars() {
@@ -210,28 +213,65 @@ function initIntroTextScroll() {
     }
 }
 
-function initProductAnimation() {
-    const productSection = document.querySelector('#product');
-    if (!productSection) return;
+function initSectionAnimations() {
+    const sections = document.querySelectorAll('.section');
 
-    const contentElems = productSection.querySelectorAll('.product-content > *, .product-image-container');
+    // Selectors for common block-level elements we want to animate
+    const selectors = [
+        '.eyebrow',
+        'h2',
+        'h3',
+        '.p-large',
+        'p',
+        'ul.feature-list',
+        'ul',
+        '.button-primary',
+        '.button-outline',
+        '.product-image-container',
+        '.specs-label',
+        '.specs-grid',
+        '.card-swap-container',
+        '.form-container',
+        '.qa-item-fancy'
+    ].join(', ');
 
-    // We use gsap.fromTo with ScrollTrigger to animate elements staggered as soon as they come into view
-    gsap.fromTo(contentElems,
-        { opacity: 0, y: 30 },
-        {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            stagger: 0.15,
-            ease: 'power3.out',
-            scrollTrigger: {
-                trigger: productSection,
-                start: 'top 75%',
-                toggleActions: 'play none none reverse'
+    sections.forEach(section => {
+        // Philosophy section has its own custom GSAP pinning logic that shouldn't be overridden
+        if (section.id === 'philosophy') return;
+
+        const potentialElems = section.querySelectorAll(selectors);
+
+        // Filter out elements that are nested inside other matched elements
+        // This ensures we only animate top-level blocks and not their children repeatedly
+        const contentElems = Array.from(potentialElems).filter(el => {
+            let parent = el.parentElement;
+            while (parent && parent !== section) {
+                if (parent.matches && parent.matches(selectors)) {
+                    return false;
+                }
+                parent = parent.parentElement;
             }
-        }
-    );
+            return true;
+        });
+
+        if (contentElems.length === 0) return;
+
+        gsap.fromTo(contentElems,
+            { opacity: 0, y: 30 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                stagger: 0.15,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 75%',
+                    toggleActions: 'play none none reverse'
+                }
+            }
+        );
+    });
 }
 
 function initScrollAnimations() {
@@ -253,26 +293,6 @@ function initScrollAnimations() {
             }
         );
     }
-
-    // Other elements animate on scroll
-    allRevealElements.forEach(element => {
-        if (element.closest('.hero')) return; // Skip hero elements
-
-        gsap.fromTo(element,
-            { opacity: 0, y: 50 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: element,
-                    start: 'top 85%',
-                    toggleActions: 'play none none reverse'
-                }
-            }
-        );
-    });
 
     // Marquee infinite scroll
     const marqueeContent = document.querySelector('.marquee-content');
@@ -553,7 +573,7 @@ function initCardSwap() {
         if (cards.length === 0) return;
 
         const cardDistance = 60;
-        const verticalDistance = 70;
+        const verticalDistance = 100;
         const skewAmount = 6;
         const delay = 5000;
 
@@ -590,7 +610,6 @@ function initCardSwap() {
 
         const total = cards.length;
         let order = cards.map((_, i) => i);
-        let intervalRef;
         let tlRef = null;
 
         const swap = (targetOriginalIndex = null) => {
@@ -614,8 +633,15 @@ function initCardSwap() {
 
             movingToBack.forEach((idx, i) => {
                 const elFront = cards[idx];
+                const backIndex = movingForward.length + i;
+                const slot = makeSlot(backIndex, cardDistance, verticalDistance, total);
+
+                // Keep on top during the drop animation
+                tl.set(elFront, { zIndex: 100 }, i * 0.15);
+
                 tl.to(elFront, {
                     y: '+=500',
+                    z: slot.z,
                     duration: config.durDrop,
                     ease: config.ease
                 }, i * 0.15); // Stagger drop
@@ -656,7 +682,6 @@ function initCardSwap() {
                     {
                         x: slot.x,
                         y: slot.y,
-                        z: slot.z,
                         duration: config.durReturn,
                         ease: config.ease
                     },
@@ -669,25 +694,415 @@ function initCardSwap() {
             });
         };
 
-        const startInterval = () => {
-            clearInterval(intervalRef);
-            intervalRef = window.setInterval(() => swap(), delay);
-        };
-
         cards.forEach((card, i) => {
             placeNow(card, makeSlot(i, cardDistance, verticalDistance, total), skewAmount);
             card.style.cursor = 'pointer';
             card.addEventListener('click', () => {
                 swap(i);
-                startInterval(); // Reset interval continuously running
             });
         });
-
-        setTimeout(() => {
-            swap();
-            startInterval();
-        }, 100);
     } catch (err) {
         console.error("CardSwap initialization failed:", err);
+    }
+}
+
+function initGrainient() {
+    const cards = document.querySelectorAll('.card-swap-container .card');
+    if (cards.length === 0) return;
+
+    const vertSrc = `#version 300 es
+    in vec2 position;
+    void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
+
+    const fragSrc = `#version 300 es
+    precision highp float;
+    uniform vec2 iResolution;
+    uniform float iTime;
+    uniform float uTimeSpeed;
+    uniform float uColorBalance;
+    uniform float uWarpStrength;
+    uniform float uWarpFrequency;
+    uniform float uWarpSpeed;
+    uniform float uWarpAmplitude;
+    uniform float uBlendAngle;
+    uniform float uBlendSoftness;
+    uniform float uRotationAmount;
+    uniform float uNoiseScale;
+    uniform float uGrainAmount;
+    uniform float uGrainScale;
+    uniform float uGrainAnimated;
+    uniform float uContrast;
+    uniform float uGamma;
+    uniform float uSaturation;
+    uniform vec2 uCenterOffset;
+    uniform float uZoom;
+    uniform vec3 uColor1;
+    uniform vec3 uColor2;
+    uniform vec3 uColor3;
+    out vec4 fragColor;
+    #define S(a,b,t) smoothstep(a,b,t)
+    mat2 Rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
+    vec2 hash(vec2 p){p=vec2(dot(p,vec2(2127.1,81.17)),dot(p,vec2(1269.5,283.37)));return fract(sin(p)*43758.5453);}
+    float noise(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.0-2.0*f);float n=mix(mix(dot(-1.0+2.0*hash(i+vec2(0,0)),f-vec2(0,0)),dot(-1.0+2.0*hash(i+vec2(1,0)),f-vec2(1,0)),u.x),mix(dot(-1.0+2.0*hash(i+vec2(0,1)),f-vec2(0,1)),dot(-1.0+2.0*hash(i+vec2(1,1)),f-vec2(1,1)),u.x),u.y);return 0.5+0.5*n;}
+    void main(){
+      float t=iTime*uTimeSpeed;
+      vec2 uv=gl_FragCoord.xy/iResolution.xy;
+      float ratio=iResolution.x/iResolution.y;
+      vec2 tuv=uv-0.5+uCenterOffset;
+      tuv/=max(uZoom,0.001);
+      float degree=noise(vec2(t*0.1,tuv.x*tuv.y)*uNoiseScale);
+      tuv.y*=1.0/ratio;
+      tuv*=Rot(radians((degree-0.5)*uRotationAmount+180.0));
+      tuv.y*=ratio;
+      float frequency=uWarpFrequency;
+      float ws=max(uWarpStrength,0.001);
+      float amplitude=uWarpAmplitude/ws;
+      float warpTime=t*uWarpSpeed;
+      tuv.x+=sin(tuv.y*frequency+warpTime)/amplitude;
+      tuv.y+=sin(tuv.x*(frequency*1.5)+warpTime)/(amplitude*0.5);
+      vec3 colLav=uColor1;
+      vec3 colOrg=uColor2;
+      vec3 colDark=uColor3;
+      float b=uColorBalance;
+      float s=max(uBlendSoftness,0.0);
+      mat2 blendRot=Rot(radians(uBlendAngle));
+      float blendX=(tuv*blendRot).x;
+      float edge0=-0.3-b-s;
+      float edge1=0.2-b+s;
+      float v0=0.5-b+s;
+      float v1=-0.3-b-s;
+      vec3 layer1=mix(colDark,colOrg,S(edge0,edge1,blendX));
+      vec3 layer2=mix(colOrg,colLav,S(edge0,edge1,blendX));
+      vec3 col=mix(layer1,layer2,S(v0,v1,tuv.y));
+      vec2 grainUv=uv*max(uGrainScale,0.001);
+      if(uGrainAnimated>0.5){grainUv+=vec2(iTime*0.05);}
+      float grain=fract(sin(dot(grainUv,vec2(12.9898,78.233)))*43758.5453);
+      col+=(grain-0.5)*uGrainAmount;
+      col=(col-0.5)*uContrast+0.5;
+      float luma=dot(col,vec3(0.2126,0.7152,0.0722));
+      col=mix(vec3(luma),col,uSaturation);
+      col=pow(max(col,0.0),vec3(1.0/max(uGamma,0.001)));
+      col=clamp(col,0.0,1.0);
+      fragColor=vec4(col,1.0);
+    }`;
+
+    const hexToRgb = hex => {
+        const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return r ? [parseInt(r[1], 16) / 255, parseInt(r[2], 16) / 255, parseInt(r[3], 16) / 255] : [1, 1, 1];
+    };
+
+    function compile(gl, type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+            console.error('Grainient shader error:', gl.getShaderInfoLog(s));
+            gl.deleteShader(s);
+            return null;
+        }
+        return s;
+    }
+
+    function link(gl) {
+        const vs = compile(gl, gl.VERTEX_SHADER, vertSrc);
+        const fs = compile(gl, gl.FRAGMENT_SHADER, fragSrc);
+        if (!vs || !fs) return null;
+        const p = gl.createProgram();
+        gl.attachShader(p, vs);
+        gl.attachShader(p, fs);
+        gl.linkProgram(p);
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+            console.error('Grainient link error:', gl.getProgramInfoLog(p));
+            return null;
+        }
+        return p;
+    }
+
+    const params = {
+        timeSpeed: 0.25, colorBalance: 0, warpStrength: 1, warpFrequency: 5,
+        warpSpeed: 2, warpAmplitude: 50, blendAngle: 0, blendSoftness: 0.05,
+        rotationAmount: 500, noiseScale: 2, grainAmount: 0.1, grainScale: 2,
+        grainAnimated: false, contrast: 1.5, gamma: 1, saturation: 1,
+        centerX: 0, centerY: 0, zoom: 0.9,
+        color1: '#E97132', color2: '#1a0a00', color3: '#331500'
+    };
+
+    const cardColors = [
+        { color1: '#E97132', color2: '#1a0a00', color3: '#331500' },
+        { color1: '#E97132', color2: '#1a0a00', color3: '#331500' },
+        { color1: '#E97132', color2: '#1a0a00', color3: '#331500' },
+        { color1: '#E97132', color2: '#1a0a00', color3: '#331500' },
+    ];
+
+    const contexts = [];
+
+    cards.forEach((card, cardIndex) => {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'grainient-canvas';
+        card.insertBefore(canvas, card.firstChild);
+
+        const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: false });
+        if (!gl) return;
+
+        const program = link(gl);
+        if (!program) return;
+
+        gl.useProgram(program);
+
+        // Fullscreen triangle
+        const posLoc = gl.getAttribLocation(program, 'position');
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(posLoc);
+        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+        // Set static uniforms
+        const u = name => gl.getUniformLocation(program, name);
+        gl.uniform1f(u('uTimeSpeed'), params.timeSpeed);
+        gl.uniform1f(u('uColorBalance'), params.colorBalance);
+        gl.uniform1f(u('uWarpStrength'), params.warpStrength);
+        gl.uniform1f(u('uWarpFrequency'), params.warpFrequency);
+        gl.uniform1f(u('uWarpSpeed'), params.warpSpeed);
+        gl.uniform1f(u('uWarpAmplitude'), params.warpAmplitude);
+        gl.uniform1f(u('uBlendAngle'), params.blendAngle);
+        gl.uniform1f(u('uBlendSoftness'), params.blendSoftness);
+        gl.uniform1f(u('uRotationAmount'), params.rotationAmount);
+        gl.uniform1f(u('uNoiseScale'), params.noiseScale);
+        gl.uniform1f(u('uGrainAmount'), params.grainAmount);
+        gl.uniform1f(u('uGrainScale'), params.grainScale);
+        gl.uniform1f(u('uGrainAnimated'), params.grainAnimated ? 1.0 : 0.0);
+        gl.uniform1f(u('uContrast'), params.contrast);
+        gl.uniform1f(u('uGamma'), params.gamma);
+        gl.uniform1f(u('uSaturation'), params.saturation);
+        gl.uniform2f(u('uCenterOffset'), params.centerX, params.centerY);
+        gl.uniform1f(u('uZoom'), params.zoom);
+
+        const colors = cardColors[cardIndex % cardColors.length];
+        gl.uniform3fv(u('uColor1'), hexToRgb(colors.color1));
+        gl.uniform3fv(u('uColor2'), hexToRgb(colors.color2));
+        gl.uniform3fv(u('uColor3'), hexToRgb(colors.color3));
+
+        contexts.push({ canvas, gl, program, uTime: u('iTime'), uRes: u('iResolution'), card });
+    });
+
+    if (contexts.length === 0) return;
+
+    const t0 = performance.now();
+    function render(t) {
+        const time = (t - t0) * 0.001;
+        contexts.forEach(ctx => {
+            const rect = ctx.card.getBoundingClientRect();
+            const w = Math.max(1, Math.floor(rect.width));
+            const h = Math.max(1, Math.floor(rect.height));
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const cw = Math.floor(w * dpr);
+            const ch = Math.floor(h * dpr);
+            if (ctx.canvas.width !== cw || ctx.canvas.height !== ch) {
+                ctx.canvas.width = cw;
+                ctx.canvas.height = ch;
+            }
+            ctx.gl.viewport(0, 0, cw, ch);
+            ctx.gl.useProgram(ctx.program);
+            ctx.gl.uniform1f(ctx.uTime, time);
+            ctx.gl.uniform2f(ctx.uRes, cw, ch);
+            ctx.gl.drawArrays(ctx.gl.TRIANGLES, 0, 3);
+        });
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+}
+
+function initPlasma() {
+    const canvas = document.getElementById('plasma-canvas');
+    if (!canvas) return;
+
+    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: false });
+    if (!gl) return;
+
+    const vertSrc = `#version 300 es
+precision highp float;
+in vec2 position;
+void main() {
+  gl_Position = vec4(position, 0.0, 1.0);
+}`;
+
+    const fragSrc = `#version 300 es
+precision highp float;
+uniform vec2 iResolution;
+uniform float iTime;
+uniform vec3 uCustomColor;
+uniform float uSpeed;
+uniform float uScale;
+uniform float uOpacity;
+out vec4 fragColor;
+
+void mainImage(out vec4 o, vec2 C) {
+  vec2 center = iResolution.xy * 0.5;
+  C = (C - center) / uScale + center;
+  float i, d, z, T = iTime * uSpeed;
+  vec3 O, p, S;
+  for (vec2 r = iResolution.xy, Q; ++i < 60.; O += o.w/d*o.xyz) {
+    p = z*normalize(vec3(C-.5*r,r.y));
+    p.z -= 4.;
+    S = p;
+    d = p.y-T;
+    p.x += .4*(1.+p.y)*sin(d + p.x*0.1)*cos(.34*d + p.x*0.05);
+    Q = p.xz *= mat2(cos(p.y+vec4(0,11,33,0)-T));
+    z+= d = abs(sqrt(length(Q*Q)) - .25*(5.+S.y))/3.+8e-4;
+    o = 1.+sin(S.y+p.z*.5+S.z-length(S-p)+vec4(2,1,0,8));
+  }
+  o.xyz = tanh(O/1e4);
+}
+
+bool finite1(float x){ return !(isnan(x) || isinf(x)); }
+vec3 sanitize(vec3 c){
+  return vec3(
+    finite1(c.r) ? c.r : 0.0,
+    finite1(c.g) ? c.g : 0.0,
+    finite1(c.b) ? c.b : 0.0
+  );
+}
+
+void main() {
+  vec4 o = vec4(0.0);
+  mainImage(o, gl_FragCoord.xy);
+  vec3 rgb = sanitize(o.rgb);
+  float intensity = (rgb.r + rgb.g + rgb.b) / 3.0;
+  vec3 finalColor = intensity * uCustomColor;
+  float alpha = length(rgb) * uOpacity;
+  fragColor = vec4(finalColor, alpha);
+}`;
+
+    function compile(gl, type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+            console.error('Plasma shader error:', gl.getShaderInfoLog(s));
+            return null;
+        }
+        return s;
+    }
+
+    const vs = compile(gl, gl.VERTEX_SHADER, vertSrc);
+    const fs = compile(gl, gl.FRAGMENT_SHADER, fragSrc);
+    if (!vs || !fs) return;
+
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error('Plasma link error:', gl.getProgramInfoLog(program));
+        return;
+    }
+
+    gl.useProgram(program);
+
+    // Fullscreen triangle
+    const posLoc = gl.getAttribLocation(program, 'position');
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    // Set uniforms
+    const u = name => gl.getUniformLocation(program, name);
+    gl.uniform3fv(u('uCustomColor'), [177 / 255, 158 / 255, 239 / 255]); // #B19EEF exact custom color
+    gl.uniform1f(u('uSpeed'), 0.6 * 0.4); // speed * 0.4 as in React
+    gl.uniform1f(u('uScale'), 1.1);
+    gl.uniform1f(u('uOpacity'), 0.8);
+
+    const uTime = u('iTime');
+    const uRes = u('iResolution');
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    const t0 = performance.now();
+    function render(now) {
+        const card = canvas.parentElement;
+        if (!card) return;
+        const cw = card.clientWidth;
+        const ch = card.clientHeight;
+        if (canvas.width !== cw || canvas.height !== ch) {
+            canvas.width = cw;
+            canvas.height = ch;
+        }
+        gl.viewport(0, 0, cw, ch);
+        gl.useProgram(program);
+        gl.uniform1f(uTime, (now - t0) * 0.001);
+        gl.uniform2f(uRes, cw, ch);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+}
+
+function initPilotForm() {
+    const form = document.getElementById('pilot-form');
+    if (!form) return;
+
+    const inputs = form.querySelectorAll('.pilot-form-input[required]');
+
+    inputs.forEach(input => {
+        // Validate on blur
+        input.addEventListener('blur', () => {
+            validateInput(input);
+        });
+
+        // Remove error on input/change
+        ['input', 'change'].forEach(evt => {
+            input.addEventListener(evt, () => {
+                input.classList.remove('invalid');
+                const formGroup = input.closest('.form-group');
+                const errorMsg = formGroup ? formGroup.querySelector('.form-error') : null;
+                if (errorMsg) errorMsg.classList.remove('visible');
+            });
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!validateInput(input)) {
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            // Optional: submit via fetch here
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Application Sent!';
+            btn.style.background = '#00C853';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+                form.reset();
+            }, 3000);
+        }
+    });
+
+    function validateInput(input) {
+        const formGroup = input.closest('.form-group');
+        const errorMsg = formGroup ? formGroup.querySelector('.form-error') : null;
+        if (!errorMsg) return true;
+
+        if (!input.validity.valid) {
+            input.classList.add('invalid');
+            errorMsg.classList.add('visible');
+            return false;
+        } else {
+            input.classList.remove('invalid');
+            errorMsg.classList.remove('visible');
+            return true;
+        }
     }
 }
