@@ -332,7 +332,7 @@ h6 {
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: #000000;
+    background: transparent;
 
     /* Break out of container to Full Viewport Width */
     width: 100vw;
@@ -340,6 +340,9 @@ h6 {
 
     position: relative;
     overflow: hidden;
+
+    mask-image: linear-gradient(to bottom, transparent 0%, black 9vh, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 9vh, black 100%);
 }
 
 .intro-bg {
@@ -352,10 +355,6 @@ h6 {
     background-color: #000000;
 
     opacity: 1;
-
-    /* Soft fade at top/bottom edges */
-    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
 }
 
 .intro-stat-container {
@@ -436,11 +435,12 @@ h6 {
 
 /* ------------------------- Product Showcas ------------------------- */
 .product-section {
-    background: linear-gradient(to bottom, #000000 0%, #000000 85%, transparent 100%);
+    background-color: transparent;
     position: relative;
-    z-index: 11;
-    overflow: hidden;
+    z-index: 3;
+    overflow: visible;
     padding: 0;
+    margin-top: -10vh;
 }
 
 .product-card {
@@ -457,12 +457,12 @@ h6 {
     align-items: center;
     mask-image: linear-gradient(to bottom,
             transparent 0%,
-            black 15%,
+            black 10%,
             black 85%,
             transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom,
             transparent 0%,
-            black 15%,
+            black 10%,
             black 85%,
             transparent 100%);
 }
@@ -1047,23 +1047,23 @@ h6 {
 #technology {
     position: relative;
     overflow: visible;
-    z-index: 10;
+    z-index: 2;
 }
 
 #technology::before {
     content: '';
     position: absolute;
-    top: -20vh;
+    top: -15vh;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: -15vh;
     background-image:
         radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
     background-size: 24px 24px;
     pointer-events: none;
     z-index: 0;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 20vh, black 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20vh, black 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black calc(100% - 15vh), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black calc(100% - 15vh), transparent 100%);
 }
 
 
@@ -1161,19 +1161,19 @@ h6 {
 
 /* ------------------------- Pilot Card ------------------------- */
 .pilot-section {
-    background-color: #000000;
-    overflow: hidden;
+    background-color: transparent;
+    overflow: visible;
     padding: 0 8px;
     /* Matches product section to align sizes perfectly */
     position: relative;
-    z-index: 1;
+    z-index: 3;
 }
 
 .pilot-card {
     position: relative;
     height: 100vh;
     border-radius: 8px;
-    background: #080808;
+    background: transparent;
     overflow: hidden;
     display: flex;
     align-items: center;
