@@ -32,13 +32,16 @@
 			<a href="#" class="nav-logo">
 				<img src="images/Final Logo full white fb.png" alt="Klein 4" style="height: 45px; width: auto;">
 			</a>
-			<div class="nav-links">
+			<div class="nav-links" id="nav-links">
 				<a href="#product" class="nav-link">Product</a>
 				<a href="#technology" class="nav-link">Technology</a>
 				<a href="#pilot" class="nav-link">Pilot Series</a>
 				<a href="#faq" class="nav-link">FAQ</a>
 			</div>
 			<a href="mailto:koba@klein-4.com" class="nav-cta button-outline">Contact</a>
+			<button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+				<span></span><span></span><span></span>
+			</button>
 		</div>
 	</nav>
 
@@ -50,8 +53,7 @@
 		<div class="container">
 			<div class="hero-content">
 				<div class="hero-title-group" data-reveal style="padding-left: 0;">
-					<h1
-						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3rem; display: flex; flex-direction: column;">
+					<h1 class="section-title" style="display: flex; flex-direction: column; margin-bottom: 3rem;">
 						<span class="h-hero-top" style="margin-bottom: 0.3em; letter-spacing: 0.15em;">Security
 							from</span>
 						<span class="h-hero-accent" style="font-weight: 400; text-shadow: none;">First Principles</span>
@@ -73,12 +75,14 @@
 	<section class="section" id="philosophy" style="padding: 0; margin-top: -10vh;">
 		<div class="container">
 			<div class="intro-text">
-				<div class="intro-bg"></div>
+				<div class="intro-bg-wrapper">
+					<div class="intro-bg"></div>
+				</div>
 				<!-- Removed Eyebrow -->
 				<div class="intro-stat-container">
 					<h2 class="intro-stat">
 						<span class="anim-text">We deliver security <br> beyond the limits of software.</span>
-						<span class="anim-text">Leveraging miniaturized <br> physical-layer security.</span>
+						<span class="anim-text">Using miniaturized <br> physical-layer security.</span>
 						<span class="anim-text" style="color: var(--color-accent);">To guarantee out-of-the-box <br>
 							business
 							continuity.</span>
@@ -94,8 +98,7 @@
 			<div class="product-grid">
 				<div class="product-content">
 					<div class="eyebrow">Product</div>
-					<h2
-						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;">
+					<h2 class="section-title">
 						Next <br> Generation <br> NAS</h2>
 					<p class="p-large">
 						Our innovative solution to protect your valuable data. Built for the European SME market
@@ -140,22 +143,21 @@
 				</div>
 
 				<div class="product-image-container">
-					<img src="images/K4 NAS render exploded.png" alt="Klein 4 NAS Device" class="product-img">
-				</div>
+				<canvas id="nas-scroll-canvas" class="product-img" width="1456" height="816"></canvas>
+			</div>
 			</div>
 		</div>
 	</section>
 
 	<!-- Features Grid (Bento) -->
 	<section class="section" id="technology"
-		style="padding: 0; height: 100vh; display: flex; align-items: center; overflow: visible; position: relative;">
+		style="padding: 0; min-height: 100vh; display: flex; align-items: center; overflow: visible; position: relative;">
 		<div class="container" style="position: relative; z-index: 1;">
-			<div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: center;">
+			<div class="tech-grid">
 				<!-- Left Column: Title & Specs -->
 				<div>
 					<div class="eyebrow">Technology</div>
-					<h2
-						style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;">
+					<h2 class="section-title" style="margin-bottom: 2rem;">
 						Physical <br> Layer <br> Security</h2>
 
 					<div class="specs-label">Specifications</div>
@@ -188,7 +190,7 @@
 				</div>
 
 				<!-- Right Column: Cards -->
-				<div style="height: 480px; position: relative;">
+				<div class="tech-cards-col">
 					<div class="card-swap-container" id="tech-card-swap">
 						<!-- Card 1: Automated Cold Backups -->
 						<div class="card">
@@ -314,7 +316,7 @@
 		<div class="pilot-card">
 			<canvas id="plasma-canvas"></canvas>
 			<div class="container" style="position: relative; z-index: 1;">
-				<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;">
+				<div class="grid pilot-grid">
 
 					<!-- Left Column: Benefits -->
 					<div style="width: 100%;">
@@ -324,8 +326,7 @@
 						</div>
 
 						<!-- White Title -->
-						<h2
-							style="font-size: clamp(1.6rem, 3vw, 2.8rem); line-height: 1.3; color: rgba(255, 255, 255, 0.9); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;">
+						<h2 class="section-title" style="margin-bottom: 2rem;">
 							Apply for <br> Limited <br> Pilot Series
 						</h2>
 
@@ -426,8 +427,7 @@
 		<div class="faq-card">
 			<div class="container" style="position: relative; z-index: 2; max-width: 900px; text-align: center;">
 				<div style="margin-bottom: 4rem;">
-					<h2
-						style="font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.2; color: #ffffff; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;">
+					<h2 class="section-title">
 						Frequently Asked Questions
 					</h2>
 				</div>

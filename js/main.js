@@ -1,5 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
+    
+    // Enable normalizeScroll to prevent conflicts between native scroll and GSAP pinning
+    // particularly when scrolling UP into a pinned section.
+    ScrollTrigger.normalizeScroll(true);
+    ScrollTrigger.config({ 
+        ignoreMobileResize: true,
+        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load" // Reduce aggressive refreshes
+    });
 
     const hasSeenIntro = sessionStorage.getItem('klein4_intro_seen');
     if (!hasSeenIntro) {
@@ -18,15 +26,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initAll() {
     initUniverseStars();
-    initScrollAnimations();
+    initHamburgerMenu();
     initHeroAnimation();
     initNavScroll();
+    
+    // Initialize pinning sections FIRST so they add their spacing to the page height
+    // before the Reveal animations calculate their trigger points
     initIntroTextScroll();
+    initNASAnimation();
+    
+    // Now initialize standard reveals and other interactive modules
     initSectionAnimations();
+    initScrollAnimations();
     initCardSwap();
-    // initGrainient();
     initPlasma();
     initPilotForm();
+
+    // Final refresh to ensure all ScrollTriggers are perfectly calculated
+    ScrollTrigger.refresh();
+    
+    window.addEventListener('load', () => {
+        ScrollTrigger.refresh();
+        // Additional delayed refresh to catch any subtle layout shifts (like the one fixed by resizing)
+        setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 500);
+    });
+}
+
+function initHamburgerMenu() {
+    const btn = document.getElementById('nav-hamburger');
+    const links = document.getElementById('nav-links');
+    if (!btn || !links) return;
+
+    btn.addEventListener('click', () => {
+        btn.classList.toggle('open');
+        links.classList.toggle('open');
+    });
+
+    // Close menu when a link is clicked
+    links.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            btn.classList.remove('open');
+            links.classList.remove('open');
+        });
+    });
+
+    // Close on resize past mobile breakpoint
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+            btn.classList.remove('open');
+            links.classList.remove('open');
+        }
+    });
 }
 
 function initUniverseStars() {
@@ -168,9 +220,10 @@ function initIntroTextScroll() {
         scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: "+=2200", // Increased pinning distance slightly to give the last text time to fade before unpinning
+            end: "+=3000",
             pin: true,
-            scrub: 1,
+            scrub: 1.0, // Optimized for smooth but responsive release
+            anticipatePin: 1,
         }
     });
 
@@ -311,12 +364,15 @@ function initNavScroll() {
         } else {
             header.classList.remove('scrolled');
         }
-    });
+    }, { passive: true });
 }
 
 function initHeroAnimation() {
     const canvas = document.getElementById('hero-canvas');
     if (!canvas) return;
+
+    // Detect touch capability
+    const isTouchDevice = !window.matchMedia('(hover: hover)').matches;
 
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -325,37 +381,80 @@ function initHeroAnimation() {
     const mouse = { x: null, y: null, radius: 180, active: false };
     const heroEl = document.querySelector('.hero');
 
-    window.addEventListener('mousemove', (e) => {
-        const heroRect = heroEl.getBoundingClientRect();
-
-        // If mouse is within the hero section vertically
-        if (e.clientY >= heroRect.top && e.clientY <= heroRect.bottom) {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
-
-            // Hide lens if hovering over buttons, links, or header
-            let isButton = false;
-            if (e.target instanceof Element) {
-                isButton = !!e.target.closest('a') || !!e.target.closest('button') || !!e.target.closest('.header');
+    // Only add mouse interaction for devices that support hover
+    if (!isTouchDevice) {
+        window.addEventListener('mousemove', (e) => {
+            const heroRect = heroEl.getBoundingClientRect();
+            if (e.clientY >= heroRect.top && e.clientY <= heroRect.bottom) {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+                let isButton = false;
+                if (e.target instanceof Element) {
+                    isButton = !!e.target.closest('a') || !!e.target.closest('button') || !!e.target.closest('.header');
+                }
+                mouse.active = !isButton;
+            } else {
+                mouse.active = false;
             }
-            mouse.active = !isButton;
-        } else {
-            mouse.active = false;
-        }
-    });
+        }, { passive: true });
 
-    // Handle leaving the browser window completely
-    document.addEventListener('mouseleave', () => {
-        mouse.active = false;
-    });
+        document.addEventListener('mouseleave', () => { mouse.active = false; }, { passive: true });
+    }
 
-    // Load the exact PCB image
+    // Load PCB image — IMPORTANT: set onload BEFORE src to catch cached images
     const pcbImage = new Image();
-    pcbImage.src = 'images/Data_diode_structure.png';
-
     let imgX = 0, imgY = 0, imgW = 0, imgH = 0;
     const ACCENT = '#E97132';
+
+    // ===== PRE-FILTERED OFFSCREEN CANVASES (eliminates per-frame CSS filter lag) =====
+    const bgOff = document.createElement('canvas');
+    const bgOffCtx = bgOff.getContext('2d');
+    const lensOff = document.createElement('canvas');
+    const lensOffCtx = lensOff.getContext('2d');
+    let offscreenReady = false;
+
+    function renderOffscreen() {
+        if (!pcbImage.complete || pcbImage.width === 0 || !width) return;
+
+        // Background: dim, inverted blueprint
+        bgOff.width = width;
+        bgOff.height = height;
+        bgOffCtx.filter = 'invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.4)';
+        bgOffCtx.drawImage(pcbImage, imgX, imgY, imgW, imgH);
+        bgOffCtx.filter = 'none';
+
+        // Lens: brighter/crisper version for the magnified view
+        lensOff.width = width;
+        lensOff.height = height;
+        lensOffCtx.filter = 'invert(1) hue-rotate(180deg) brightness(1.5) contrast(1.7)';
+        lensOffCtx.drawImage(pcbImage, imgX, imgY, imgW, imgH);
+        lensOffCtx.filter = 'none';
+
+        offscreenReady = true;
+    }
+
+    // ===== FISHEYE GRID (no getImageData — works on file:// and all protocols) =====
+    // Pre-compute a grid of source displacement offsets for barrel distortion
+    const GRID = 32; // Grid resolution (32×32 = 1024 cells — good balance)
+    const fishGrid = []; // Array of { sx, sy } normalized source offsets per cell
+    for (let gy = 0; gy < GRID; gy++) {
+        for (let gx = 0; gx < GRID; gx++) {
+            // Normalized coordinates for center of this cell (-1 to 1)
+            const nx = (2 * (gx + 0.5) / GRID) - 1;
+            const ny = (2 * (gy + 0.5) / GRID) - 1;
+            const r = Math.sqrt(nx * nx + ny * ny);
+
+            let snx = nx, sny = ny;
+            if (r <= 1.0 && r > 0) {
+                const nr = Math.min((r + (1.0 - Math.sqrt(1.0 - r * r))) / 2.0, 1.0);
+                const theta = Math.atan2(ny, nx);
+                snx = nr * Math.cos(theta);
+                sny = nr * Math.sin(theta);
+            }
+            fishGrid.push({ snx, sny });
+        }
+    }
 
     // ===== RESIZE =====
     function resize() {
@@ -365,199 +464,257 @@ function initHeroAnimation() {
         if (pcbImage.complete && pcbImage.width > 0) {
             const imgAspect = pcbImage.width / pcbImage.height;
             const screenAspect = width / height;
-
             if (screenAspect > imgAspect) {
-                // Screen is wider than image -> width matches
-                imgW = width * 1.0;
+                imgW = width;
                 imgH = imgW / imgAspect;
             } else {
-                // Screen is taller -> height matches
-                imgH = height * 1.0;
+                imgH = height;
                 imgW = imgH * imgAspect;
             }
             imgX = (width - imgW) / 2;
             imgY = (height - imgH) / 2;
         }
+        offscreenReady = false;
     }
 
-    // Once image loads, recalculate everything
-    pcbImage.onload = resize;
-    window.addEventListener('resize', resize);
+    pcbImage.onload = () => { resize(); renderOffscreen(); };
+    pcbImage.src = 'images/Data_diode_structure.png';
+
+    // If already cached/complete, fire manually
+    if (pcbImage.complete && pcbImage.naturalWidth > 0) {
+        resize();
+        renderOffscreen();
+    }
+
+    window.addEventListener('resize', () => { resize(); }, { passive: true });
     resize();
 
-    // ===== DRAW PCB IMAGE =====
-    function drawPCBBackground() {
-        if (!pcbImage.complete || pcbImage.width === 0) return;
+    // ===== SMOOTH LENS STATE =====
+    let lensX = 0, lensY = 0, lensScale = 0, lensAlpha = 0;
 
+    // ===== DRAW BACKGROUND (now just a cheap drawImage from pre-filtered cache) =====
+    function drawPCBBackground() {
+        if (!offscreenReady) renderOffscreen();
+        if (!offscreenReady) return;
         ctx.save();
-        // The image is mostly white/grey, the site is dark.
-        // We invert and tint it to look like a stealthy blueprint behind everything.
-        ctx.globalAlpha = 0.25;
-        ctx.filter = 'invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.4)';
-        ctx.drawImage(pcbImage, imgX, imgY, imgW, imgH);
+        // Slightly brighter background on mobile for better visibility
+        ctx.globalAlpha = isTouchDevice ? 0.35 : 0.25;
+        ctx.drawImage(bgOff, 0, 0);
         ctx.restore();
     }
 
-    // ===== LENS EFFECT =====
-    // Smooth mouse position for the lens to feel heavier/more premium
-    let lensX = 0;
-    let lensY = 0;
-    let lensScale = 0; // for size
-    let lensAlpha = 0; // independent opacity
-
+    // ===== DRAW FISHEYE LENS =====
     function drawLens(time) {
-        if (!pcbImage.complete || pcbImage.width === 0) return;
+        if (!offscreenReady) return;
 
-        // Initialize lens exactly in the center of the screen initially
+        // Initialize lens in center on first frame
         if (width && height && lensX === 0) {
             lensX = width / 2;
             lensY = height / 2;
         }
 
-        // Epic appear/disappear mechanics
+        // Smooth interpolation
         if (mouse.active) {
-            // Smoothly open and fade in
             lensScale += (1 - lensScale) * 0.12;
             lensAlpha += (1 - lensAlpha) * 0.15;
-
-            // Track mouse smoothly
             lensX += (mouse.x - lensX) * 0.15;
             lensY += (mouse.y - lensY) * 0.15;
         } else {
-            // Sharp mechanical snap to close, fades out super fast
             lensScale += (0 - lensScale) * 0.25;
             lensAlpha += (0 - lensAlpha) * 0.35;
         }
 
         if (lensAlpha < 0.01 && lensScale < 0.01) return;
-
-        // Ensure bounds
         lensScale = Math.max(0.001, Math.min(1, lensScale));
         lensAlpha = Math.max(0, Math.min(1, lensAlpha));
 
-        const currentRadius = mouse.radius * lensScale;
+        const R = mouse.radius * lensScale;
+
+        // Guard: skip drawing when lens is too small to render
+        // (prevents DOMException from drawImage with near-zero source dimensions)
+        if (R < 2) return;
+
         const zoom = 1.8;
+        const cellW = (R * 2) / GRID;
+        const cellH = (R * 2) / GRID;
+        const halfView = R / zoom;
 
+        // --- Fisheye content (clipped to circle, drawn ON TOP of background) ---
         ctx.save();
-
-        // 1. Create Clipping Mask for the Lens
         ctx.beginPath();
-        ctx.arc(lensX, lensY, currentRadius, 0, Math.PI * 2);
+        ctx.arc(lensX, lensY, R, 0, Math.PI * 2);
         ctx.clip();
+        ctx.globalAlpha = lensAlpha;
 
-        // 2. Clear background inside lens to ensure no ghosting
-        ctx.clearRect(lensX - currentRadius, lensY - currentRadius, currentRadius * 2, currentRadius * 2);
+        for (let gy = 0; gy < GRID; gy++) {
+            for (let gx = 0; gx < GRID; gx++) {
+                const cell = fishGrid[gy * GRID + gx];
+                const sx = lensX + cell.snx * halfView;
+                const sy = lensY + cell.sny * halfView;
+                const sw = halfView / GRID * 2;
+                const sh = sw;
+                const dx = lensX - R + gx * cellW;
+                const dy = lensY - R + gy * cellH;
 
-        // 3. Draw the zoomed image inside the lens
-        ctx.save();
-        // Move to lens center, scale around it
-        ctx.translate(lensX, lensY);
-        ctx.scale(zoom, zoom);
-        ctx.translate(-lensX, -lensY);
-
-        // Filter for the zoomed area: crisp, slightly brighter
-        ctx.globalAlpha = 0.9 * lensAlpha;
-        ctx.filter = 'invert(1) hue-rotate(180deg) brightness(1.5) contrast(1.7)';
-        ctx.drawImage(pcbImage, imgX, imgY, imgW, imgH);
-        ctx.restore();
-
-        // 4. Subtle, precise scanlines
-        ctx.globalAlpha = 0.06 * lensAlpha;
-        ctx.fillStyle = '#ffffff';
-        const scanOffset = (time * 0.03) % 4;
-        for (let i = 0; i < currentRadius * 2; i += 4) {
-            ctx.fillRect(lensX - currentRadius, lensY - currentRadius + i + scanOffset, currentRadius * 2, 0.5);
+                ctx.drawImage(lensOff,
+                    sx - sw / 2, sy - sh / 2, sw, sh,
+                    dx, dy, cellW + 0.5, cellH + 0.5
+                );
+            }
         }
 
-        ctx.restore(); // remove clip
+        // Vignette
+        const vig = ctx.createRadialGradient(lensX, lensY, R * 0.5, lensX, lensY, R);
+        vig.addColorStop(0, 'rgba(0,0,0,0)');
+        vig.addColorStop(0.8, 'rgba(0,0,0,0)');
+        vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+        ctx.fillStyle = vig;
+        ctx.fill();
 
-        // 5. Draw Lens Border/Tech UI (Minimalistic & Professional)
+        // Scanlines
+        ctx.globalAlpha = 0.04 * lensAlpha;
+        ctx.fillStyle = '#fff';
+        const scanOff = (time * 0.03) % 4;
+        for (let i = 0; i < R * 2; i += 4) {
+            ctx.fillRect(lensX - R, lensY - R + i + scanOff, R * 2, 0.5);
+        }
+
+        ctx.restore();
+
+        // ===== DEEP TECH LENS OVERLAY (white/grey palette) =====
         ctx.save();
         ctx.globalAlpha = lensAlpha;
         ctx.translate(lensX, lensY);
 
-        // Tight, precise white glow
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 6;
-
-        // Main Ring - thinner, sharper white
+        // Outer glow (cool white)
+        ctx.shadowColor = 'rgba(200, 220, 255, 0.6)';
+        ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.arc(0, 0, currentRadius, 0, Math.PI * 2);
-        ctx.lineWidth = 1.2;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.95)`;
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(200, 220, 255, 0.5)';
         ctx.stroke();
-
         ctx.shadowBlur = 0;
 
-        // Secondary optical focus ring - very slight gap, thin
+        // Main ring
         ctx.beginPath();
-        ctx.arc(0, 0, currentRadius + 4, 0, Math.PI * 2);
-        ctx.lineWidth = 0.5;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.25)`;
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
         ctx.stroke();
 
-        // Inner dashed ring - precision ticks
+        // Outer precision ring
         ctx.beginPath();
-        ctx.arc(0, 0, Math.max(0, currentRadius - 5), 0, Math.PI * 2);
-        ctx.lineWidth = 1;
+        ctx.arc(0, 0, R + 5, 0, Math.PI * 2);
+        ctx.lineWidth = 0.4;
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.stroke();
+
+        // Inner dashed measurement ring
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(0, R - 6), 0, Math.PI * 2);
+        ctx.lineWidth = 0.6;
         ctx.setLineDash([2, 10]);
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Outer tech segments - reduced size, slower rotation, white accent
-        ctx.lineWidth = 1.0;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.6)`;
-        const segmentCount = 3;
-        const segmentLength = Math.PI / 10;
-        const offsetRotation = time * 0.0003;
-
-        for (let i = 0; i < segmentCount; i++) {
-            const angle = offsetRotation + (i * Math.PI * 2) / segmentCount;
+        // Rotating outer tech arcs (white/grey, 4 segments)
+        const rot1 = time * 0.0004;
+        ctx.lineWidth = 1.2;
+        for (let i = 0; i < 4; i++) {
+            const a = rot1 + (i * Math.PI * 2) / 4;
             ctx.beginPath();
-            ctx.arc(0, 0, currentRadius + 10, angle, angle + segmentLength);
+            ctx.arc(0, 0, R + 11, a, a + Math.PI / 14);
+            ctx.strokeStyle = `rgba(180, 200, 220, ${0.3 + 0.15 * Math.sin(time * 0.002 + i)})`;
             ctx.stroke();
         }
 
-        // Crosshairs - clean, minimal
-        const chLength = 6;
-        const chOffset = Math.max(8, currentRadius * 0.2); // clear center
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.6)`;
+        // Counter-rotating inner arcs (6 segments)
+        const rot2 = -time * 0.0003;
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i < 6; i++) {
+            const a = rot2 + (i * Math.PI * 2) / 6;
+            ctx.beginPath();
+            ctx.arc(0, 0, Math.max(0, R - 12), a, a + Math.PI / 22);
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.stroke();
+        }
 
-        // Top, Bottom, Left, Right cross lines
+        // Precision tick marks around circumference
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        for (let i = 0; i < 36; i++) {
+            const a = (i * Math.PI * 2) / 36;
+            const inner = i % 9 === 0 ? R - 4 : R - 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+            ctx.lineTo(Math.cos(a) * R, Math.sin(a) * R);
+            ctx.stroke();
+        }
+
+        // Corner brackets
+        const bLen = 12;
+        const bOff = R * 0.42;
+        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
         ctx.beginPath();
-        ctx.moveTo(0, -chOffset - chLength);
-        ctx.lineTo(0, -chOffset);
-        ctx.moveTo(0, chOffset);
-        ctx.lineTo(0, chOffset + chLength);
-        ctx.moveTo(-chOffset - chLength, 0);
-        ctx.lineTo(-chOffset, 0);
-        ctx.moveTo(chOffset, 0);
-        ctx.lineTo(chOffset + chLength, 0);
+        ctx.moveTo(-bOff, -bOff + bLen); ctx.lineTo(-bOff, -bOff); ctx.lineTo(-bOff + bLen, -bOff);
+        ctx.moveTo(bOff - bLen, -bOff); ctx.lineTo(bOff, -bOff); ctx.lineTo(bOff, -bOff + bLen);
+        ctx.moveTo(-bOff, bOff - bLen); ctx.lineTo(-bOff, bOff); ctx.lineTo(-bOff + bLen, bOff);
+        ctx.moveTo(bOff - bLen, bOff); ctx.lineTo(bOff, bOff); ctx.lineTo(bOff, bOff - bLen);
         ctx.stroke();
 
-        // Exact center pin hole dot
+        // Crosshairs
+        const chLen = 8;
+        const chOff = Math.max(10, R * 0.15);
+        ctx.lineWidth = 0.6;
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
         ctx.beginPath();
-        ctx.arc(0, 0, 1.0, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, 0.9)`;
+        ctx.moveTo(0, -chOff - chLen); ctx.lineTo(0, -chOff);
+        ctx.moveTo(0, chOff); ctx.lineTo(0, chOff + chLen);
+        ctx.moveTo(-chOff - chLen, 0); ctx.lineTo(-chOff, 0);
+        ctx.moveTo(chOff, 0); ctx.lineTo(chOff + chLen, 0);
+        ctx.stroke();
+
+        // Center dot
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200, 220, 255, 0.8)';
         ctx.fill();
 
-        // Coordinate text - tiny precise mono font
+        // HUD readouts
         ctx.font = '9px monospace';
-        ctx.fillStyle = `rgba(255, 255, 255, 0.4)`;
-        ctx.fillText(`${Math.round(lensX)}:${Math.round(lensY)}`, chOffset + 4, 3);
+        ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.fillText(`X:${Math.round(lensX)} Y:${Math.round(lensY)}`, chOff + 4, -4);
+        ctx.fillText(`${zoom.toFixed(1)}x SCAN`, chOff + 4, 10);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(180, 200, 220, 0.35)';
+        ctx.font = '7px monospace';
+        ctx.fillText('K4 · PHYSICAL LAYER ANALYSIS', 0, R - 16);
 
         ctx.restore();
+    }
+
+    // ===== VISIBILITY CHECK — skip rendering when hero off-screen =====
+    let heroVisible = true;
+    if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+            heroVisible = entries[0].isIntersecting;
+        }, { threshold: 0.05 });
+        obs.observe(heroEl);
     }
 
     // ===== ANIMATION LOOP =====
     function animate(time) {
         requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, width, height);
+        if (!heroVisible) return;
 
+        ctx.clearRect(0, 0, width, height);
         drawPCBBackground();
-        drawLens(time);
+        if (!isTouchDevice) drawLens(time); // Skip lens completely on mobile
     }
 
     requestAnimationFrame(animate);
@@ -572,9 +729,10 @@ function initCardSwap() {
         const cards = Array.from(container.querySelectorAll('.card'));
         if (cards.length === 0) return;
 
-        const cardDistance = 60;
-        const verticalDistance = 100;
-        const skewAmount = 6;
+        const isMobileCards = window.innerWidth <= 900;
+        const cardDistance = isMobileCards ? 40 : 60;
+        const verticalDistance = isMobileCards ? 0 : 100; // Flat stacking on mobile
+        const skewAmount = isMobileCards ? 0 : 6; // No skew on mobile
         const delay = 5000;
 
         // Elastic easing configuration from React component
@@ -1021,8 +1179,23 @@ void main() {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    // Visibility check — skip GPU work when pilot section is off-screen
+    let plasmaVisible = false;
+    const pilotSection = document.getElementById('pilot');
+    if ('IntersectionObserver' in window && pilotSection) {
+        const obs = new IntersectionObserver((entries) => {
+            plasmaVisible = entries[0].isIntersecting;
+        }, { threshold: 0.05 });
+        obs.observe(pilotSection);
+    } else {
+        plasmaVisible = true;
+    }
+
     const t0 = performance.now();
     function render(now) {
+        requestAnimationFrame(render);
+        if (!plasmaVisible) return;
+
         const card = canvas.parentElement;
         if (!card) return;
         const cw = card.clientWidth;
@@ -1036,9 +1209,201 @@ void main() {
         gl.uniform1f(uTime, (now - t0) * 0.001);
         gl.uniform2f(uRes, cw, ch);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
-        requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
+}
+
+function initNASAnimation() {
+    const canvas = document.getElementById('nas-scroll-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const TOTAL_FRAMES = 250;
+    const EAGER_COUNT = 10;       // Load immediately
+    const FAST_COUNT = 40;        // Load on first idle
+    const BATCH_SIZE = 10;        // Lazy batch size
+    const frames = new Array(TOTAL_FRAMES);
+    let loadedCount = 0;
+    let currentFrameIndex = -1;
+
+    // Build frame path: 0001.webp ... 0250.webp
+    function framePath(i) {
+        return 'images/NAS animation/' + String(i + 1).padStart(4, '0') + '.webp';
+    }
+
+    // Draw a frame onto the canvas, respecting the display size
+    function drawFrame(index) {
+        const img = frames[index];
+        if (!img || !img.complete || img.naturalWidth === 0) return;
+
+        // Match canvas internal resolution to its CSS display size (for crisp rendering)
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.round(rect.width * dpr);
+        const h = Math.round(rect.height * dpr);
+
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+        }
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+    }
+
+    // Load a single frame, returns a Promise
+    function loadFrame(index) {
+        return new Promise((resolve) => {
+            if (frames[index]) { resolve(); return; }
+
+            const img = new Image();
+            img.src = framePath(index);
+
+            img.onload = () => {
+                frames[index] = img;
+                loadedCount++;
+
+                // If this is the very first frame loaded, draw it immediately
+                if (index === 0 && currentFrameIndex <= 0) {
+                    currentFrameIndex = 0;
+                    drawFrame(0);
+                }
+                resolve();
+            };
+            img.onerror = () => resolve(); // Silently skip broken frames
+        });
+    }
+
+    // Load a batch of frames sequentially (to avoid network congestion)
+    async function loadRange(start, end) {
+        for (let i = start; i < Math.min(end, TOTAL_FRAMES); i++) {
+            await loadFrame(i);
+        }
+    }
+
+    // Load remaining frames lazily in idle batches
+    function loadLazy(startFrom) {
+        let cursor = startFrom;
+
+        function loadNextBatch() {
+            if (cursor >= TOTAL_FRAMES) return;
+
+            const batchEnd = Math.min(cursor + BATCH_SIZE, TOTAL_FRAMES);
+            loadRange(cursor, batchEnd).then(() => {
+                cursor = batchEnd;
+                if (cursor < TOTAL_FRAMES) {
+                    // Use requestIdleCallback if available, otherwise setTimeout
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(loadNextBatch, { timeout: 200 });
+                    } else {
+                        setTimeout(loadNextBatch, 50);
+                    }
+                }
+            });
+        }
+
+        loadNextBatch();
+    }
+
+    // --- Start progressive loading ---
+    // Phase 1: Load first N frames eagerly
+    loadRange(0, EAGER_COUNT).then(() => {
+        if (currentFrameIndex < 0) {
+            currentFrameIndex = 0;
+            drawFrame(0);
+        }
+        initTrigger();
+        ScrollTrigger.refresh(); // Ensure pinning positions are correct after init
+
+        // Phase 2: Load next batch on idle
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                loadRange(EAGER_COUNT, FAST_COUNT).then(() => {
+                    // Phase 3: Lazy-load the rest
+                    loadLazy(FAST_COUNT);
+                });
+            }, { timeout: 500 });
+        } else {
+            setTimeout(() => {
+                loadRange(EAGER_COUNT, FAST_COUNT).then(() => {
+                    loadLazy(FAST_COUNT);
+                });
+            }, 100);
+        }
+    });
+
+    // If frames are already cached/complete, we should init trigger even sooner if possible
+    // but the above eager load is usually < 50ms for 10 small webp frames.
+
+    // --- GSAP ScrollTrigger: map scroll to frame index ---
+    const animObj = { frame: 0 };
+    let st = null;
+
+    function initTrigger() {
+        if (st) {
+            st.kill();
+            st = null;
+        }
+        
+        if (window.innerWidth <= 900) {
+            // Mobile: Show assembled NAS (frame 40) as static image
+            const mobileFrame = 40;
+            const drawMobile = () => {
+                currentFrameIndex = mobileFrame;
+                drawFrame(mobileFrame);
+            };
+            if (frames[mobileFrame]) {
+                drawMobile();
+            } else {
+                loadFrame(mobileFrame).then(drawMobile);
+            }
+            return;
+        }
+
+        // Desktop: Pinning animation
+        st = ScrollTrigger.create({
+            trigger: '#product',
+            start: 'top top',
+            end: '+=4000', // Restored slow cinematic feel
+            pin: true,
+            scrub: 0.1, // Ultra-low damping for immediate unpinning feel
+            fastScrollEnd: true,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+                const padding = 0.15; // 15% scroll buffer at start
+                // Map progress so it starts after padding but ends exactly at 1.0 (unpin point)
+                let p = (self.progress - padding) / (1 - padding);
+                p = Math.max(0, Math.min(1, p));
+                
+                const idx = Math.round(p * (TOTAL_FRAMES - 1));
+                if (idx !== currentFrameIndex && frames[idx]) {
+                    currentFrameIndex = idx;
+                    drawFrame(idx);
+                }
+            }
+        });
+
+        // Ensure we draw the first frame immediately if available
+        if (frames[0] && currentFrameIndex < 0) {
+            currentFrameIndex = 0;
+            drawFrame(0);
+        }
+    }
+
+
+    // Handle resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            initTrigger();
+            if (currentFrameIndex >= 0 && frames[currentFrameIndex]) {
+                drawFrame(currentFrameIndex);
+            }
+        }, 200);
+    });
 }
 
 function initPilotForm() {
