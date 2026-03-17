@@ -357,8 +357,8 @@ h6 {
     inset: 0;
     z-index: -1;
     overflow: hidden;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
 }
 
 .intro-bg {
@@ -455,13 +455,24 @@ h6 {
     z-index: 3;
     overflow: visible;
     padding: 0;
+    /* Unified section mask to ensure everything fades together at the edges */
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            black 15%,
+            black 85%,
+            transparent 100%);
 }
 
 .product-card {
     position: relative;
     min-height: 100vh;
     border-radius: 0;
-    overflow: hidden;
+    overflow: visible; /* Allow the product render to bleed out into the section-end fade */
     border: none;
     box-shadow: none;
     display: flex;
@@ -476,25 +487,11 @@ h6 {
     background-size: cover;
     background-position: center right;
     z-index: 0;
-    mask-image: linear-gradient(to bottom,
-            transparent 0%,
-            black 15%,
-            black 85%,
-            transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom,
-            transparent 0%,
-            black 15%,
-            black 85%,
-            transparent 100%);
+    /* Mask removed from here and moved to parent section for unified fading */
 }
 
 .product-card::before {
-    /* Pulled back the gradient even further to make space for the giant NAS image while keeping text readable */
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(8, 8, 8, 0.98) 0%, rgba(8, 8, 8, 0.85) 15%, rgba(8, 8, 8, 0.3) 35%, transparent 100%);
-    z-index: 1;
+    display: none; /* Removed the wide layout fade */
 }
 
 .product-grid {
@@ -513,7 +510,86 @@ h6 {
 }
 
 .product-content {
-    padding-bottom: 0;
+    position: relative;
+    z-index: 2;
+    padding: 3rem;
+    
+    /* Highly sophisticated, deeper premium glass for maximum text readability */
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.5) 0%, rgba(0, 0, 0, 0.2) 100%);
+    backdrop-filter: blur(24px) saturate(120%);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+    
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    
+    /* 3D and Hover preparation */
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transform: perspective(1500px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
+    transform-style: preserve-3d;
+}
+
+/* Internal glare/shine layer */
+.product-content::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(800px circle at 0% 0%, rgba(255, 255, 255, 0.08), transparent 40%);
+    pointer-events: none;
+    z-index: -1;
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* High-End Hover States */
+.product-content:hover {
+    /* Card tilts backwards on X, tilts into view on Y, moves up and slightly scales */
+    transform: perspective(1500px) rotateX(4deg) rotateY(6deg) translateY(-8px) scale(1.02);
+    /* Deepen the tint slightly to maintain contrast during the bright glow effects */
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.6) 0%, rgba(10, 10, 10, 0.25) 100%);
+    /* Stronger crisp edges */
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    /* Deep 3D drop shadow projecting backwards, with subtle brand-colored ambient light bleeding out */
+    box-shadow: 
+        -20px 50px 80px rgba(0, 0, 0, 0.6), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 0 30px rgba(255, 255, 255, 0.05),
+        -10px 10px 30px rgba(233, 113, 50, 0.15); 
+}
+
+/* Move the internal shine to simulate dynamic lighting change when tilted */
+.product-content:hover::after {
+    background: radial-gradient(800px circle at 15% 15%, rgba(255, 255, 255, 0.15), transparent 50%);
+}
+
+/* 3D Parallax Pop-Out effect for ALL content inside the card */
+.product-content > * {
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transform: translateZ(0px); /* Hardware acceleration and 3D space */
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+}
+
+.product-content:hover > * {
+    /* Parallax pop out towards user */
+    transform: translateZ(30px);
+}
+
+.product-content:hover .feature-icon {
+    /* Icons pop out even more and enlarge */
+    transform: scale(1.1) translateZ(40px);
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Ensure child elements inside feature list also participate in 3D */
+.product-content .feature-item {
+    transform-style: preserve-3d;
+}
+
+.product-content:hover .button-primary {
+    /* Button swells up significantly when the card is hovered */
+    transform: scale(1.08) translateZ(40px);
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.3s, color 0.3s;
 }
 
 /* Enhancing Product Content Typography for Deep Tech Feel */
@@ -538,35 +614,30 @@ h6 {
 
 .product-image-container {
     position: absolute;
-    right: -15vw; /* Pulled back to the left to avoid it being too far off-screen */
-    bottom: -130px;
+    /* Anchored slightly further right to reduce overlap and align with section end */
+    left: 45%;
+    /* Perfectly anchored to the bottom of the product-card (the section end) */
+    bottom: 0px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: flex-end;
-    width: 55vw;
-    z-index: 2;
-    mask-image: linear-gradient(to bottom,
-            transparent 0%,
-            black 15%,
-            black 85%,
-            transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom,
-            transparent 0%,
-            black 15%,
-            black 85%,
-            transparent 100%);
+    width: 50vw;
+    z-index: 10;
+    pointer-events: none;
+    overflow: visible;
 }
 
 .product-img {
-    width: 105%;
+    width: 100%;
     max-width: 1500px;
     height: auto;
     aspect-ratio: 1456 / 816;
     position: relative;
     z-index: 2;
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.3));
     transform-origin: bottom center;
     display: block;
+    /* Removed all masks for a crisp look */
     will-change: transform;
 }
 
@@ -596,22 +667,27 @@ h6 {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-accent);
+    color: var(--color-accent) !important;
     flex-shrink: 0;
     position: relative;
     border-radius: 8px;
     background: linear-gradient(135deg, rgba(233, 113, 50, 0.12) 0%, rgba(233, 113, 50, 0.03) 100%);
-    border: 1px solid rgba(233, 113, 50, 0.3);
+    border: 1px solid rgba(233, 113, 50, 0.4) !important;
     box-shadow:
         inset 0 0 15px rgba(233, 113, 50, 0.15),
         0 8px 20px rgba(0, 0, 0, 0.5),
         0 0 20px rgba(233, 113, 50, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    /* Removed backdrop-filter to prevent nesting flicker with the glass panel */
 }
 
 .feature-icon svg {
-    filter: drop-shadow(0 0 8px rgba(233, 113, 50, 0.6));
+    stroke: var(--color-accent) !important;
+    filter: drop-shadow(0 0 8px rgba(233, 113, 50, 0.4));
+}
+
+.feature-icon svg rect[fill="currentColor"] {
+    fill: var(--color-accent) !important;
+    fill-opacity: 0.3 !important;
 }
 
 .feature-item h4 {
@@ -1100,8 +1176,8 @@ h6 {
     background-size: 24px 24px;
     pointer-events: none;
     z-index: 0;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black calc(100% - 15vh), transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15vh, black calc(100% - 15vh), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
 
@@ -1657,6 +1733,18 @@ select.pilot-form-input:invalid {
         grid-template-columns: 1fr;
     }
 
+    .product-card {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+        min-height: auto;
+        padding-top: 5rem;
+    }
+
+    .product-content {
+        padding: 2.5rem 1.5rem;
+    }
+
     .product-image-container {
         position: relative;
         width: 100%;
@@ -1672,10 +1760,13 @@ select.pilot-form-input:invalid {
         margin: 0 auto;
     }
 
+    /* Ensure masks stay active on mobile for smooth transitions */
     .product-card::after,
-    .product-card::before {
-        mask-image: none;
-        -webkit-mask-image: none;
+    .product-card::before,
+    .faq-card::after,
+    #plasma-canvas {
+        mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
     }
 
     .product-card::before {

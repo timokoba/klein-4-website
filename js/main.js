@@ -5,8 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // particularly when scrolling UP into a pinned section.
     ScrollTrigger.normalizeScroll(true);
     ScrollTrigger.config({ 
-        ignoreMobileResize: true,
-        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load" // Reduce aggressive refreshes
+        ignoreMobileResize: true
+        // Removed custom autoRefreshEvents to allow GSAP to use its highly optimized defaults,
+        // which prevents the "flickering" effect during rapid scrolling.
     });
 
     const hasSeenIntro = sessionStorage.getItem('klein4_intro_seen');
@@ -276,8 +277,7 @@ function initSectionAnimations() {
         'h3',
         '.p-large',
         'p',
-        'ul.feature-list',
-        'ul',
+        '.feature-item', // Animate items individually instead of the whole list
         '.button-primary',
         '.button-outline',
         '.product-image-container',
@@ -295,8 +295,10 @@ function initSectionAnimations() {
         const potentialElems = section.querySelectorAll(selectors);
 
         // Filter out elements that are nested inside other matched elements
-        // This ensures we only animate top-level blocks and not their children repeatedly
+        // Also exclude the product feature icons as they have custom complex CSS states
         const contentElems = Array.from(potentialElems).filter(el => {
+            if (el.classList.contains('feature-icon')) return false;
+            
             let parent = el.parentElement;
             while (parent && parent !== section) {
                 if (parent.matches && parent.matches(selectors)) {
@@ -358,6 +360,8 @@ function initScrollAnimations() {
 
 function initNavScroll() {
     const header = document.querySelector('.header');
+    
+    // 1. Fixed Header Background Transition
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
@@ -365,6 +369,71 @@ function initNavScroll() {
             header.classList.remove('scrolled');
         }
     }, { passive: true });
+
+    // 2. Precise Smooth Scroll for Navigation Links
+    document.querySelectorAll('.nav-link, a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            
+            const targetElement = document.querySelector(href);
+            if (targetElement) {
+                e.preventDefault();
+                
+                // Close hamburger menu if open
+                const btn = document.getElementById('nav-hamburger');
+                const links = document.getElementById('nav-links');
+                if (btn && links) {
+                    btn.classList.remove('open');
+                    links.classList.remove('open');
+                }
+
+                // Refresh ScrollTrigger to ensure all dynamic heights/pins are current
+                // For forward-scrolling, we refresh twice to catch any dynamic pin-spacing shifts
+                ScrollTrigger.refresh();
+
+                const performScroll = () => {
+                    let target = targetElement.querySelector('.eyebrow, .section-title') || targetElement;
+                    const expectedHeaderHeight = 77;
+                    const safetyBuffer = window.innerWidth <= 900 ? 10 : 30;
+                    
+                    // Custom dynamic smooth scroll to handle 100vh mobile address bar shifts
+                    const duration = 800; // ms
+                    const startTime = performance.now();
+                    const startY = window.pageYOffset;
+
+                    function step(currentTime) {
+                        const timeElapsed = currentTime - startTime;
+                        let progress = Math.min(timeElapsed / duration, 1);
+                        progress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+
+                        // Dynamically calculate the target position on every frame
+                        // This prevents height changes (from 100vh resizing) from displacing the jump!
+                        const originalTransform = target.style.transform;
+                        target.style.transform = 'none';
+                        const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
+                        target.style.transform = originalTransform;
+                        
+                        const destinationY = absoluteTop - expectedHeaderHeight - safetyBuffer;
+                        const currentY = startY + (destinationY - startY) * progress;
+
+                        window.scrollTo(0, currentY);
+
+                        if (timeElapsed < duration) {
+                            requestAnimationFrame(step);
+                        } else {
+                            // Final exact snap just to be 100% sure
+                            window.scrollTo(0, destinationY);
+                        }
+                    }
+                    requestAnimationFrame(step);
+                };
+
+                // Execute on next frame to ensure the refresh has propagated through the DOM
+                requestAnimationFrame(performScroll);
+            }
+        });
+    });
 }
 
 function initHeroAnimation() {
@@ -1220,25 +1289,13 @@ function initNASAnimation() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const TOTAL_FRAMES = 250;
-    const EAGER_COUNT = 10;       // Load immediately
-    const FAST_COUNT = 40;        // Load on first idle
-    const BATCH_SIZE = 10;        // Lazy batch size
-    const frames = new Array(TOTAL_FRAMES);
-    let loadedCount = 0;
-    let currentFrameIndex = -1;
+    // Load only the specific 'exploded' render
+    const img = new Image();
+    img.src = 'images/K4 NAS render exploded.png';
 
-    // Build frame path: 0001.webp ... 0250.webp
-    function framePath(i) {
-        return 'images/NAS animation/' + String(i + 1).padStart(4, '0') + '.webp';
-    }
+    function draw() {
+        if (!img.complete || img.naturalWidth === 0) return;
 
-    // Draw a frame onto the canvas, respecting the display size
-    function drawFrame(index) {
-        const img = frames[index];
-        if (!img || !img.complete || img.naturalWidth === 0) return;
-
-        // Match canvas internal resolution to its CSS display size (for crisp rendering)
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const rect = canvas.getBoundingClientRect();
         const w = Math.round(rect.width * dpr);
@@ -1253,157 +1310,13 @@ function initNASAnimation() {
         ctx.drawImage(img, 0, 0, w, h);
     }
 
-    // Load a single frame, returns a Promise
-    function loadFrame(index) {
-        return new Promise((resolve) => {
-            if (frames[index]) { resolve(); return; }
+    img.onload = () => {
+        draw();
+        // Refresh ScrollTrigger as the layout is now stable without pinning
+        ScrollTrigger.refresh();
+    };
 
-            const img = new Image();
-            img.src = framePath(index);
-
-            img.onload = () => {
-                frames[index] = img;
-                loadedCount++;
-
-                // If this is the very first frame loaded, draw it immediately
-                if (index === 0 && currentFrameIndex <= 0) {
-                    currentFrameIndex = 0;
-                    drawFrame(0);
-                }
-                resolve();
-            };
-            img.onerror = () => resolve(); // Silently skip broken frames
-        });
-    }
-
-    // Load a batch of frames sequentially (to avoid network congestion)
-    async function loadRange(start, end) {
-        for (let i = start; i < Math.min(end, TOTAL_FRAMES); i++) {
-            await loadFrame(i);
-        }
-    }
-
-    // Load remaining frames lazily in idle batches
-    function loadLazy(startFrom) {
-        let cursor = startFrom;
-
-        function loadNextBatch() {
-            if (cursor >= TOTAL_FRAMES) return;
-
-            const batchEnd = Math.min(cursor + BATCH_SIZE, TOTAL_FRAMES);
-            loadRange(cursor, batchEnd).then(() => {
-                cursor = batchEnd;
-                if (cursor < TOTAL_FRAMES) {
-                    // Use requestIdleCallback if available, otherwise setTimeout
-                    if ('requestIdleCallback' in window) {
-                        requestIdleCallback(loadNextBatch, { timeout: 200 });
-                    } else {
-                        setTimeout(loadNextBatch, 50);
-                    }
-                }
-            });
-        }
-
-        loadNextBatch();
-    }
-
-    // --- Start progressive loading ---
-    // Phase 1: Load first N frames eagerly
-    loadRange(0, EAGER_COUNT).then(() => {
-        if (currentFrameIndex < 0) {
-            currentFrameIndex = 0;
-            drawFrame(0);
-        }
-        initTrigger();
-        ScrollTrigger.refresh(); // Ensure pinning positions are correct after init
-
-        // Phase 2: Load next batch on idle
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => {
-                loadRange(EAGER_COUNT, FAST_COUNT).then(() => {
-                    // Phase 3: Lazy-load the rest
-                    loadLazy(FAST_COUNT);
-                });
-            }, { timeout: 500 });
-        } else {
-            setTimeout(() => {
-                loadRange(EAGER_COUNT, FAST_COUNT).then(() => {
-                    loadLazy(FAST_COUNT);
-                });
-            }, 100);
-        }
-    });
-
-    // If frames are already cached/complete, we should init trigger even sooner if possible
-    // but the above eager load is usually < 50ms for 10 small webp frames.
-
-    // --- GSAP ScrollTrigger: map scroll to frame index ---
-    const animObj = { frame: 0 };
-    let st = null;
-
-    function initTrigger() {
-        if (st) {
-            st.kill();
-            st = null;
-        }
-        
-        if (window.innerWidth <= 900) {
-            // Mobile: Show assembled NAS (frame 40) as static image
-            const mobileFrame = 40;
-            const drawMobile = () => {
-                currentFrameIndex = mobileFrame;
-                drawFrame(mobileFrame);
-            };
-            if (frames[mobileFrame]) {
-                drawMobile();
-            } else {
-                loadFrame(mobileFrame).then(drawMobile);
-            }
-            return;
-        }
-
-        // Desktop: Pinning animation
-        st = ScrollTrigger.create({
-            trigger: '#product',
-            start: 'top top',
-            end: '+=4000', // Restored slow cinematic feel
-            pin: true,
-            scrub: 0.1, // Ultra-low damping for immediate unpinning feel
-            fastScrollEnd: true,
-            anticipatePin: 1,
-            onUpdate: (self) => {
-                const padding = 0.15; // 15% scroll buffer at start
-                // Map progress so it starts after padding but ends exactly at 1.0 (unpin point)
-                let p = (self.progress - padding) / (1 - padding);
-                p = Math.max(0, Math.min(1, p));
-                
-                const idx = Math.round(p * (TOTAL_FRAMES - 1));
-                if (idx !== currentFrameIndex && frames[idx]) {
-                    currentFrameIndex = idx;
-                    drawFrame(idx);
-                }
-            }
-        });
-
-        // Ensure we draw the first frame immediately if available
-        if (frames[0] && currentFrameIndex < 0) {
-            currentFrameIndex = 0;
-            drawFrame(0);
-        }
-    }
-
-
-    // Handle resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            initTrigger();
-            if (currentFrameIndex >= 0 && frames[currentFrameIndex]) {
-                drawFrame(currentFrameIndex);
-            }
-        }, 200);
-    });
+    window.addEventListener('resize', draw);
 }
 
 function initPilotForm() {
