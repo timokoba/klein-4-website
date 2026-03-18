@@ -798,13 +798,23 @@ function initCardSwap() {
         const cards = Array.from(container.querySelectorAll('.card'));
         if (cards.length === 0) return;
 
-        const isMobileCards = window.innerWidth <= 900;
-        const cardDistance = isMobileCards ? 40 : 60;
-        const verticalDistance = isMobileCards ? 0 : 100; // Flat stacking on mobile
-        const skewAmount = isMobileCards ? 0 : 6; // No skew on mobile
-        const delay = 5000;
+        const total = cards.length;
+        let order = cards.map((_, i) => i);
+        let tlRef = null;
 
-        // Elastic easing configuration from React component
+        let currentMode = null; // Track 'desktop' or 'mobile'
+
+        const getLayoutSettings = () => {
+            // Match the CSS media query perfectly (1200px)
+            const isMobile = window.innerWidth <= 1200; 
+            return {
+                isMobile,
+                cardDistance: isMobile ? 0 : 60,
+                verticalDistance: isMobile ? 50 : 100, 
+                skewAmount: isMobile ? 0 : 6
+            };
+        };
+
         const config = {
             ease: 'elastic.out(0.6,0.9)',
             durDrop: 2,
@@ -835,62 +845,116 @@ function initCardSwap() {
             });
         };
 
-        const total = cards.length;
-        let order = cards.map((_, i) => i);
-        let tlRef = null;
+        const refreshLayout = () => {
+            // Kill any active swap animation immediately on resize to prevent "lost" cards
+            if (tlRef) {
+                tlRef.kill();
+                tlRef = null;
+            }
+
+            const settings = getLayoutSettings();
+            const newMode = settings.isMobile ? 'mobile' : 'desktop';
+            const modeSwitched = currentMode !== newMode;
+            currentMode = newMode;
+
+            // Clear all JS-managed styles to start fresh
+            // This is essential for a 100% clean switch
+            cards.forEach(el => {
+                gsap.set(el, { 
+                    clearProps: "all" 
+                });
+            });
+
+            let finalCardHeight = 430; // Desktop default
+
+            if (settings.isMobile) {
+                // Efficient measurement for mobile
+                let maxHeight = 0;
+                const measureDiv = document.createElement('div');
+                measureDiv.style.cssText = `position:absolute;visibility:hidden;width:${container.clientWidth}px;left:-9999px;pointer-events:none;`;
+                document.body.appendChild(measureDiv);
+                
+                cards.forEach(card => {
+                    const clone = card.cloneNode(true);
+                    // Force the card to its natural height for measurement
+                    clone.style.cssText = "position:relative;width:100%;height:auto;display:block;padding:2rem 1.5rem;box-sizing:border-box;";
+                    measureDiv.appendChild(clone);
+                    const h = clone.offsetHeight;
+                    if (h > maxHeight) maxHeight = h;
+                });
+                
+                document.body.removeChild(measureDiv);
+                finalCardHeight = Math.max(300, maxHeight);
+                
+                const totalVerticalOffset = (total - 1) * settings.verticalDistance;
+                container.style.height = `${finalCardHeight + totalVerticalOffset}px`;
+            } else {
+                // Fixed height for desktop to keep 3D origin stable
+                container.style.height = "430px";
+            }
+
+            // Re-apply positioning
+            order.forEach((originalIdx, currentPos) => {
+                const el = cards[originalIdx];
+                el.style.height = `${finalCardHeight}px`;
+                const slot = makeSlot(currentPos, settings.cardDistance, settings.verticalDistance, total);
+                placeNow(el, slot, settings.skewAmount);
+            });
+
+            // Ensure ScrollTrigger knows about the new container height immediately
+            if (modeSwitched) {
+                ScrollTrigger.refresh();
+            }
+        };
 
         const swap = (targetOriginalIndex = null) => {
             if (order.length < 2) return;
             if (tlRef && tlRef.isActive()) return;
-
+            const settings = getLayoutSettings();
             let steps = 1;
             if (targetOriginalIndex !== null) {
                 const targetIndexInOrder = order.indexOf(targetOriginalIndex);
-                if (targetIndexInOrder === 0) return; // Already front
-                if (targetIndexInOrder > 0) {
-                    steps = targetIndexInOrder;
-                }
+                if (targetIndexInOrder === 0) return;
+                steps = targetIndexInOrder;
             }
 
             const movingToBack = order.slice(0, steps);
             const movingForward = order.slice(steps);
 
-            const tl = gsap.timeline();
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    order = [...movingForward, ...movingToBack];
+                }
+            });
             tlRef = tl;
 
             movingToBack.forEach((idx, i) => {
                 const elFront = cards[idx];
                 const backIndex = movingForward.length + i;
-                const slot = makeSlot(backIndex, cardDistance, verticalDistance, total);
+                const slot = makeSlot(backIndex, settings.cardDistance, settings.verticalDistance, total);
 
-                // Keep on top during the drop animation
                 tl.set(elFront, { zIndex: 100 }, i * 0.15);
-
                 tl.to(elFront, {
                     y: '+=500',
                     z: slot.z,
                     duration: config.durDrop,
                     ease: config.ease
-                }, i * 0.15); // Stagger drop
+                }, i * 0.15);
             });
 
             tl.addLabel('promote', `-=${config.durDrop * config.promoteOverlap}`);
 
             movingForward.forEach((idx, i) => {
                 const el = cards[idx];
-                const slot = makeSlot(i, cardDistance, verticalDistance, total);
+                const slot = makeSlot(i, settings.cardDistance, settings.verticalDistance, total);
                 tl.set(el, { zIndex: slot.zIndex }, 'promote');
-                tl.to(
-                    el,
-                    {
-                        x: slot.x,
-                        y: slot.y,
-                        z: slot.z,
-                        duration: config.durMove,
-                        ease: config.ease
-                    },
-                    `promote+=${i * 0.15}`
-                );
+                tl.to(el, {
+                    x: slot.x,
+                    y: slot.y,
+                    z: slot.z,
+                    duration: config.durMove,
+                    ease: config.ease
+                }, `promote+=${i * 0.15}`);
             });
 
             tl.addLabel('return', `promote+=${config.durMove * config.returnDelay}`);
@@ -898,36 +962,31 @@ function initCardSwap() {
             movingToBack.forEach((idx, i) => {
                 const elFront = cards[idx];
                 const backIndex = movingForward.length + i;
-                const slot = makeSlot(backIndex, cardDistance, verticalDistance, total);
+                const slot = makeSlot(backIndex, settings.cardDistance, settings.verticalDistance, total);
 
-                tl.call(() => {
-                    gsap.set(elFront, { zIndex: slot.zIndex });
-                }, null, 'return');
-
-                tl.to(
-                    elFront,
-                    {
-                        x: slot.x,
-                        y: slot.y,
-                        duration: config.durReturn,
-                        ease: config.ease
-                    },
-                    `return+=${i * 0.15}`
-                );
-            });
-
-            tl.call(() => {
-                order = [...movingForward, ...movingToBack];
+                tl.set(elFront, { zIndex: slot.zIndex }, 'return');
+                tl.to(elFront, {
+                    x: slot.x,
+                    y: slot.y,
+                    duration: config.durReturn,
+                    ease: config.ease
+                }, `return+=${i * 0.15}`);
             });
         };
 
+        // Initial placement
+        refreshLayout();
+
         cards.forEach((card, i) => {
-            placeNow(card, makeSlot(i, cardDistance, verticalDistance, total), skewAmount);
             card.style.cursor = 'pointer';
-            card.addEventListener('click', () => {
-                swap(i);
-            });
+            card.addEventListener('click', () => swap(i));
         });
+
+        // Dynamic resize listener
+        window.addEventListener('resize', refreshLayout);
+
+
+
     } catch (err) {
         console.error("CardSwap initialization failed:", err);
     }
