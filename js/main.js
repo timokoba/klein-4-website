@@ -216,51 +216,69 @@ function initIntroTextScroll() {
 
     if (!section || texts.length === 0) return;
 
-    // Single combined ScrollTrigger: pins AND scrubs the animation together
+    // Drum configuration: each line rolls into focus like a rotating tech cylinder
+    const totalScroll = 3500;
+    
+    // Initial setup: push texts into the depth
+    gsap.set(texts, {
+        rotationX: 45,
+        translateZ: -300,
+        opacity: 0,
+        filter: "blur(12px)"
+    });
+
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: "+=3000",
+            end: `+=${totalScroll}`,
             pin: true,
-            scrub: 1.0, // Optimized for smooth but responsive release
+            scrub: 1.2,
             anticipatePin: 1,
         }
     });
 
-    // Animate texts sequentially (uniform timing for all three)
-    const fadeIn = 0.8;
-    const hold = 1.0;
-    const fadeOut = 0.8;
+    // Animate texts sequentially through the focus plane
+    texts.forEach((text, i) => {
+        const offset = i * 1.5; // Offset start of each line's journey
 
-    texts.forEach((text, index) => {
-        // Fade In with transition
+        // 1. Roll IN from below/depth to Focus Center
         tl.to(text, {
+            rotationX: 0,
+            translateZ: 0,
             opacity: 1,
-            y: "-50%",
-            duration: fadeIn,
-            ease: "power2.out"
-        });
+            filter: "blur(0px)",
+            duration: 1.5,
+            ease: "power2.inOut"
+        }, offset);
 
-        // Hold
-        tl.to({}, { duration: hold });
-
-        // Fade Out (ensure the last text also fades out before pinning ends)
+        // 2. Roll OUT from Focus Center up into the "Background Roll"
+        // Keeps slight visibility per user request (sophisticated ghosting)
         tl.to(text, {
-            opacity: 0,
-            y: "-80%",
-            duration: fadeOut,
-            ease: "power2.in"
-        });
+            rotationX: -45,
+            translateZ: -300,
+            opacity: 0.15,
+            filter: "blur(12px)",
+            duration: 1.5,
+            ease: "power2.inOut"
+        }, offset + 2.0);
+
+        // 3. Optional: Fade the final ghosting out completely before pinning ends
+        if (i < texts.length - 1) {
+            tl.to(text, {
+                opacity: 0,
+                duration: 1
+            }, offset + 4.0);
+        }
     });
 
-    // Background Animation — covers the ENTIRE timeline
+    // Background Animation — covers the ENTIRE timeline with orbital shift
     if (bg) {
         tl.to(bg, {
-            rotation: 4,
-            scale: 1.15,
-            x: "-1%",
-            y: "0.5%",
+            rotation: 12,
+            scale: 1.25,
+            x: "-2%",
+            y: "1%",
             ease: "sine.inOut",
             duration: tl.duration()
         }, 0);
@@ -393,37 +411,66 @@ function initNavScroll() {
                 ScrollTrigger.refresh();
 
                 const performScroll = () => {
-                    let target = targetElement.querySelector('.eyebrow, .section-title') || targetElement;
-                    const expectedHeaderHeight = 77;
-                    const safetyBuffer = window.innerWidth <= 900 ? 10 : 30;
+                    // We now consistently jump to the exact section top across all devices (mobile and desktop)
+                    // The layout padding handles the header clearance
+                    const target = targetElement;
+                    const expectedHeaderHeight = 0;
+                    const safetyBuffer = 0;
+                    
+                    // Refresh ScrollTrigger to ensure all dynamic heights/pins are current
+                    ScrollTrigger.refresh();
+                    
+                    const startY = window.pageYOffset;
+                    
+                    // Helper to accurately calculate target destination
+                    const getDestinationY = () => {
+                        const originalTransform = target.style.transform;
+                        target.style.transform = 'none';
+                        const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
+                        target.style.transform = originalTransform;
+                        return absoluteTop - expectedHeaderHeight - safetyBuffer;
+                    };
+
+                    const destinationY = getDestinationY();
+
+                    // SKIP ANIMATION ZONE: If we are currently at Hero/Philosophy and going to any section below, 
+                    // or vice-versa, we jump immediately to avoid the "Philosophy Scrub" effect.
+                    const philosophySection = document.getElementById('philosophy');
+                    if (philosophySection) {
+                        const philTop = philosophySection.offsetTop;
+                        const philEnd = philTop + 3500; // Match "+=3500" from initIntroTextScroll
+                        
+                        // Check if the scroll path crosses or starts/ends within the pinning zone
+                        const isCrossingPhil = (startY < philEnd && destinationY > philTop) || 
+                                               (startY > philTop && destinationY < philEnd);
+                        
+                        if (isCrossingPhil) {
+                            window.scrollTo(0, destinationY);
+                            // Also call refresh to make sure ScrollTrigger is in sync after jump
+                            ScrollTrigger.refresh();
+                            return;
+                        }
+                    }
                     
                     // Custom dynamic smooth scroll to handle 100vh mobile address bar shifts
                     const duration = 800; // ms
                     const startTime = performance.now();
-                    const startY = window.pageYOffset;
 
                     function step(currentTime) {
                         const timeElapsed = currentTime - startTime;
                         let progress = Math.min(timeElapsed / duration, 1);
                         progress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
 
-                        // Dynamically calculate the target position on every frame
-                        // This prevents height changes (from 100vh resizing) from displacing the jump!
-                        const originalTransform = target.style.transform;
-                        target.style.transform = 'none';
-                        const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
-                        target.style.transform = originalTransform;
-                        
-                        const destinationY = absoluteTop - expectedHeaderHeight - safetyBuffer;
-                        const currentY = startY + (destinationY - startY) * progress;
+                        // Re-confirm destination on every frame to handle potential layout shifts/resizes
+                        const currentDestinationY = getDestinationY();
+                        const currentY = startY + (currentDestinationY - startY) * progress;
 
                         window.scrollTo(0, currentY);
 
                         if (timeElapsed < duration) {
                             requestAnimationFrame(step);
                         } else {
-                            // Final exact snap just to be 100% sure
-                            window.scrollTo(0, destinationY);
+                            window.scrollTo(0, currentDestinationY);
                         }
                     }
                     requestAnimationFrame(step);
