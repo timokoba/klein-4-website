@@ -1459,18 +1459,57 @@ function initPilotForm() {
         });
 
         if (isValid) {
-            // Optional: submit via fetch here
             const btn = form.querySelector('button[type="submit"]');
             const originalText = btn.textContent;
-            btn.textContent = 'Application Sent!';
-            btn.style.background = '#00C853';
-            btn.style.color = '#fff';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-                btn.style.color = '';
-                form.reset();
-            }, 3000);
+            
+            // Visual feedback: Sending...
+            btn.disabled = true;
+            btn.textContent = 'Sending Application...';
+            btn.style.background = '#E97132';
+
+            const formData = new FormData(form);
+            
+            // To make the background submission work seamlessly, we use fetch()
+            // Sending it to Formspree (or any form backend)
+            fetch('https://formspree.io/f/xnjglybp', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(async response => {
+                if (response.ok) {
+                    // Success!
+                    btn.textContent = 'Success! Application Sent';
+                    btn.style.background = '#00C853';
+                    form.reset();
+                    // Reset button after a delay
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 5000);
+                } else {
+                    const data = await response.json();
+                    if (data.errors) {
+                        console.error('Formspree Errors:', data.errors);
+                        throw new Error(data.errors.map(e => e.message).join(', '));
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Submission error:', error);
+                btn.textContent = 'Error! Please try again';
+                btn.style.background = '#ff4d4d';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 3000);
+            });
         }
     });
 

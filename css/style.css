@@ -467,7 +467,7 @@ h6 {
 
 .product-card {
     position: relative;
-    min-height: 100vh;
+    min-height: max(900px, 100vh);
     border-radius: 0;
     overflow: visible;
     border: none;
@@ -933,7 +933,7 @@ h6 {
 
 .faq-card {
     position: relative;
-    min-height: 100vh;
+    min-height: max(900px, 100vh);
     border-radius: 0;
     overflow: hidden;
     border: none;
@@ -1288,7 +1288,7 @@ h6 {
 
 .pilot-card {
     position: relative;
-    min-height: 100vh;
+    min-height: max(900px, 100vh);
     border-radius: 8px;
     background: transparent;
     overflow: hidden;
