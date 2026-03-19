@@ -30,6 +30,18 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Disable the blue highlight overlay on mobile taps */
+}
+
+/* Base selection behavior: Default to none to prevent accidental tap-selection, but re-enable on text nodes */
+html, body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+p, span, h1, h2, h3, h4, li, a, button, input, textarea {
+    -webkit-user-select: text; /* Preserves the classic long-press selection for content */
+    user-select: text;
 }
 
 html,
