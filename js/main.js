@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, Observer);
     
     // Enable normalizeScroll to prevent conflicts between native scroll and GSAP pinning
     // particularly when scrolling UP into a pinned section.
@@ -105,42 +105,60 @@ function initUniverseStars() {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, cw, ch);
 
-    // Generate organic starfield
-    for (let i = 0; i < 1500; i++) {
+    // Generate organic starfield (Epic Upgrade: 2500 stars)
+    for (let i = 0; i < 2500; i++) {
         const x = Math.random() * cw;
         const y = Math.random() * ch;
 
-        let maxRadius = 0.8;
+        let maxRadius = 0.9;
         let p = Math.random();
-        if (p > 0.9) maxRadius = 1.8;
-        if (p > 0.98) maxRadius = 3;
+        // More variety in star sizes
+        if (p > 0.85) maxRadius = 2.0;
+        if (p > 0.96) maxRadius = 3.5;
+        if (p > 0.995) maxRadius = 5.0; // Rare giant stars
 
         const radius = Math.random() * maxRadius;
-        const opacity = Math.random() * 0.8 + 0.2;
+        const opacity = Math.random() * 0.85 + 0.15;
 
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
 
-        const isBlue = Math.random() > 0.8;
-        const isOrange = Math.random() > 0.95;
-
-        if (isBlue) {
-            ctx.fillStyle = `rgba(180, 210, 255, ${opacity})`;
-        } else if (isOrange) {
-            ctx.fillStyle = `rgba(255, 180, 140, ${opacity})`;
+        // More colorful star population
+        const rand = Math.random();
+        if (rand > 0.9) {
+            ctx.fillStyle = `rgba(180, 210, 255, ${opacity})`; // Cool Blue
+        } else if (rand > 0.85) {
+            ctx.fillStyle = `rgba(255, 180, 140, ${opacity})`; // Warm Orange
+        } else if (rand > 0.82) {
+            ctx.fillStyle = `rgba(255, 100, 100, ${opacity})`; // Intense Red
+        } else if (rand > 0.80) {
+            ctx.fillStyle = `rgba(180, 255, 180, ${opacity})`; // Subtle Green
         } else {
-            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; // Pure White
         }
 
         ctx.fill();
 
-        // Glow for larger objects
-        if (maxRadius > 1.8) {
-            ctx.shadowBlur = 12;
+        // Epic Glow for larger objects
+        if (maxRadius > 1.9) {
+            ctx.shadowBlur = maxRadius * 5;
             ctx.shadowColor = ctx.fillStyle;
             ctx.fill();
             ctx.shadowBlur = 0;
         }
+    }
+
+    // Extra Stars at the TOP (Additional density for the entry view)
+    for (let i = 0; i < 600; i++) {
+        const x = Math.random() * cw;
+        const y = Math.random() * (ch * 0.45); // Focus on top 45%
+
+        const radius = Math.random() * 1.2;
+        const opacity = Math.random() * 0.7 + 0.3;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ctx.fill();
     }
 
     const addNebula = (cx, cy, r, c1, c2) => {
@@ -151,10 +169,13 @@ function initUniverseStars() {
         ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     };
 
-    // Minimalist space nebulas
-    addNebula(cw * 0.3, ch * 0.4, 1000, 'rgba(0, 80, 255, 0.04)', 'transparent');
-    addNebula(cw * 0.8, ch * 0.7, 1200, 'rgba(233, 113, 50, 0.03)', 'transparent');
-    addNebula(cw * 0.5, ch * 0.9, 1000, 'rgba(100, 0, 255, 0.02)', 'transparent');
+    // Epic background nebulas — more numerous and vibrant
+    addNebula(cw * 0.3, ch * 0.4, 1200, 'rgba(0, 80, 255, 0.05)', 'transparent');
+    addNebula(cw * 0.8, ch * 0.7, 1400, 'rgba(233, 113, 50, 0.04)', 'transparent');
+    addNebula(cw * 0.5, ch * 0.9, 1100, 'rgba(100, 0, 255, 0.03)', 'transparent');
+    addNebula(cw * 0.1, ch * 0.2, 900, 'rgba(255, 50, 50, 0.02)', 'transparent');
+    addNebula(cw * 0.9, ch * 0.1, 1000, 'rgba(0, 255, 200, 0.02)', 'transparent');
+    addNebula(cw * 0.5, ch * 0.3, 1500, 'rgba(150, 0, 255, 0.025)', 'transparent');
 
     bg.appendChild(canvas);
 }
@@ -216,9 +237,9 @@ function initIntroTextScroll() {
 
     if (!section || texts.length === 0) return;
 
-    // Drum configuration: each line rolls into focus like a rotating tech cylinder
-    const totalScroll = 3500;
-    
+    // Detect touch capability to specify layout/interaction (matches hero section logic)
+    const isTouchDevice = !window.matchMedia('(hover: hover)').matches;
+
     // Initial setup: push texts into the depth
     gsap.set(texts, {
         rotationX: 45,
@@ -227,61 +248,99 @@ function initIntroTextScroll() {
         filter: "blur(12px)"
     });
 
-    const tl = gsap.timeline({
-        scrollTrigger: {
+    const totalScroll = 3500;
+    const tl = gsap.timeline();
+
+    // Text animations (only for non-touch devices)
+    if (!isTouchDevice) {
+        texts.forEach((text, i) => {
+            const offset = i * 1.5;
+            tl.to(text, { rotationX: 0, translateZ: 0, opacity: 1, filter: "blur(0px)", duration: 1.5, ease: "power2.inOut" }, offset);
+            tl.to(text, { rotationX: -45, translateZ: -300, opacity: 0.15, filter: "blur(12px)", duration: 1.5, ease: "power2.inOut" }, offset + 2.0);
+            if (i < texts.length - 1) tl.to(text, { opacity: 0, duration: 1 }, offset + 4.0);
+        });
+
+        // Background Animation — tied to timeline on desktop
+        if (bg) {
+            tl.to(bg, {
+                rotation: 12,
+                scale: 1.25,
+                x: "-2%",
+                y: "1%",
+                ease: "sine.inOut",
+                duration: tl.duration()
+            }, 0);
+        }
+
+        // Pinning for desktop (non-touch)
+        ScrollTrigger.create({
             trigger: section,
             start: "top top",
             end: `+=${totalScroll}`,
             pin: true,
             scrub: 1.2,
-            anticipatePin: 1,
+            animation: tl,
+            anticipatePin: 1
+        });
+    } 
+    // --- MOBILE/HANDY LOGIC (Independent Drift) ---
+    else {
+        // Handle background as a standalone trigger on mobile
+        if (bg) {
+            gsap.to(bg, {
+                rotation: 12,
+                scale: 1.25,
+                x: "-2%",
+                y: "1%",
+                ease: "sine.inOut",
+                scrollTrigger: {
+                    trigger: "#philosophy",
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: 1.2
+                }
+            });
         }
-    });
 
-    // Animate texts sequentially through the focus plane
-    texts.forEach((text, i) => {
-        const offset = i * 1.5; // Offset start of each line's journey
+        // Individual reveal for each text on mobile (blurred transparent -> normal)
+        texts.forEach((text) => {
+            gsap.set(text, { 
+                opacity: 0, 
+                filter: "blur(12px)",
+                rotationX: 0, 
+                translateZ: 0 
+            });
 
-        // 1. Roll IN from below/depth to Focus Center
-        tl.to(text, {
-            rotationX: 0,
-            translateZ: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.5,
-            ease: "power2.inOut"
-        }, offset);
+            gsap.to(text, {
+                opacity: 1,
+                filter: "blur(0px)",
+                duration: 1.5,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: text,
+                    start: "top 85%", // Triggers when the top of each text hits the 85% mark
+                    toggleActions: "play none none reverse"
+                }
+            });
 
-        // 2. Roll OUT from Focus Center up into the "Background Roll"
-        // Keeps slight visibility per user request (sophisticated ghosting)
-        tl.to(text, {
-            rotationX: -45,
-            translateZ: -300,
-            opacity: 0.15,
-            filter: "blur(12px)",
-            duration: 1.5,
-            ease: "power2.inOut"
-        }, offset + 2.0);
+            // Handle Long-Press to enable selection only when intended
+            let touchTimer;
+            text.addEventListener('touchstart', () => {
+                touchTimer = setTimeout(() => {
+                    text.classList.add('allow-select');
+                }, 600);
+            }, { passive: true });
 
-        // 3. Optional: Fade the final ghosting out completely before pinning ends
-        if (i < texts.length - 1) {
-            tl.to(text, {
-                opacity: 0,
-                duration: 1
-            }, offset + 4.0);
-        }
-    });
+            text.addEventListener('touchend', () => {
+                clearTimeout(touchTimer);
+                // Grace period to allow context menu to appear and be used
+                setTimeout(() => text.classList.remove('allow-select'), 2500);
+            }, { passive: true });
 
-    // Background Animation — covers the ENTIRE timeline with orbital shift
-    if (bg) {
-        tl.to(bg, {
-            rotation: 12,
-            scale: 1.25,
-            x: "-2%",
-            y: "1%",
-            ease: "sine.inOut",
-            duration: tl.duration()
-        }, 0);
+            text.addEventListener('touchmove', () => {
+                clearTimeout(touchTimer);
+            }, { passive: true });
+        });
     }
 }
 

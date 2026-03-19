@@ -357,8 +357,8 @@ h6 {
     background: transparent;
 
     /* Break out of container to Full Viewport Width */
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
+    width: 100%;
+    margin-left: 0;
 
     position: relative;
     overflow: hidden;
@@ -425,6 +425,80 @@ h6 {
 .anim-text-final {
     opacity: 0;
     transform: translateY(20px);
+}
+
+/* Touch & Mobile Specific: Alternative layout for all touch-primary devices */
+@media (hover: none), (pointer: coarse) {
+    #philosophy {
+        margin-top: 0 !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        overflow: visible !important; /* Changed to overflow visible to avoid clipping */
+        position: relative;
+        z-index: 1;
+        background-color: #000; /* Ensure base black background */
+    }
+
+    .intro-text {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 2rem;
+    }
+
+    .intro-stat-container {
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: none;
+        width: 100%;
+    }
+    
+    .intro-stat {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 6rem; /* Increased gap for better mobile spacing */
+        transform-style: flat;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .anim-text {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        /* Animation properties removed to allow JS control */
+        font-size: clamp(1.4rem, 5vw, 2rem);
+        text-align: center;
+        width: 100%;
+        max-width: 90%;
+        display: block;
+        line-height: 1.4;
+        margin: 0 auto;
+        
+        /* Prevent accidental selection on touch */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .anim-text.allow-select {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        -webkit-touch-callout: default !important;
+    }
 }
 
 .intro-epic-light {
